@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>工控成神录 - Gemini 特工舱(真实联网版)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #090d16; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+    </style>
+</head>
+<body class="text-slate-200 antialiased">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        function App() {
+            const [model, setModel] = useState('gemini-pro');
+            const [input, setInput] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [apiKey, setApiKey] = useState(localStorage.getItem('gk_api_key') || '');
+            const [showSettings, setShowSettings] = useState(false);
+            const chatEndRef = useRef(null);
+
+            // Mem0 跨模型共享持久化记忆体
+            const [memories, setMemories] = useState(() => {
+                const saved = localStorage.getItem('gk_memories');
+                return saved ? JSON.parse(saved) : [
+                    "安川机器人: Y轴间歇抖动 -> 原因: Payload负载惯量未对齐 -> 解法: 重新计算工具增益变量",
+                    "西门子S7-1500: Profinet红灯闪烁 -> 原因: 2号从站屏蔽层未单端接地 -> 解法: 做等电位连接"
+                ];
+            });
+
+            // 主AI（我）的出厂设定
+            const systemPrompt = `你是《工控成神录》的随身AI特工。你精通多品牌PLC（西门子博途SCL、三菱ST）与工业机器人（FANUC系统初始化与附加轴配置、安川绝对零点校准及Payload负载抖动消除、川崎RS020N/RS050N通信互锁规划）。你的主人是一名高冷理性、追求极致自由效率的硬核工控架构师（人设为慵懒黑猫）。请用极度专业、一针见血、直接给出寄存器与变量的硬核语言帮他解决现场难题。对话结束时，必须用[成神录结晶]作为标记，用一句话总结本次故障的核心原因与解法。当前已知现场历史记忆背景如下：${memories.join(' | ')}`;
+
+            const [messages, setMessages] = useState([
+                { role: 'assistant', content: '【工控成神录·特工舱真实联网版启动】。\n\n主人，真实API接口已全部焊死。右上角滑出控制台锁入Key后，我们就可以直接向云端算力借智。今天碰到了什么刁钻的硬骨头？发过来，我陪你当场干碎它。' }
+            ]);
+
+            useEffect(() => {
+                localStorage.setItem('gk_memories', JSON.stringify(memories));
+            }, [memories]);
+
+            useEffect(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [messages]);
+
+            const saveApiKey = (val) => {
+                setApiKey(val);
+                localStorage.setItem('gk_api_key', val);
+            };
+
+            // 核心联网逻辑：直连官方 API 架构
+            const fetchAIResponse = async (currentMessages, currentModel) => {
+                if (!apiKey) {
+                    throw new Error("检测到未锁入 API Key，请点击右上角控制台进行配置。");
+                }
+
+                // 统一转换格式适配 API
+                const formattedMessages = currentMessages.map(m => ({
+                    role: m.role === 'assistant' ? 'assistant' : 'user',
+                    content: m.content
+                }));
+
+                if (currentModel === 'gemini-pro') {
+                    // Google Gemini API 路由（使用官方 v1beta 通道适配免费/付费Key）
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [
+                                { role: 'user', parts: [{ text: `系统设定：${systemPrompt}` }] },
+                                ...currentMessages.map(m => ({
+                                    role: m.role === 'user' ? 'user' : 'model',
+                                    parts: [{ text: m.content }]
+                                }))
+                            ]
+                        })
+                    });
+                    
+                    if (!response.ok) throw new Error(`Gemini 云端节点报错: ${response.status}，请检查Key是否有效或网络是否畅通。`);
+                    const data = await response.json();
+                    return data.candidates[0].content.parts[0].text;
+
+                } else {
+                    // Anthropic Claude API 路由（带跨域头处理）
+                    const response = await fetch('https://api.anthropic.com/v1/messages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': apiKey,
+                            'anthropic-version': '2023-06-01',
+                            'dangerously-allow-browser': 'true'
+                        },
+      
