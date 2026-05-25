@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#090d16;color:#cbd5e1;font-family:Consolas,Monaco,'Courier New',monospace;font-size:13px;height:100dvh;overflow:hidden}
-.container{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;border-left:1px solid #1e293b;border-right:1px solid #1e293b}
+.container{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;border-left:1px solid #1e293b;border-right:1px solid #1e293b;position:relative}
 header{background:#0f172a;padding:12px 14px;border-bottom:1px solid rgba(245,158,11,0.25);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .logo{font-weight:900;font-size:15px;letter-spacing:2px;color:#f8fafc}.logo span{color:#f59e0b}
 .hdr{display:flex;gap:6px;align-items:center}
@@ -117,8 +117,7 @@ let S = {
     } catch(e) { return []; }
   })(),
   mems: (() => { try{return JSON.parse(localStorage.getItem('gkcsn_m')||'[]')}catch{return[]} })(),
-  angle: 0,
-  isTypingFocused: false // 🔥 新增状态锁：标记用户是否正在激活输入框
+  angle: 0
 };
 
 const saveCustomAis = () => localStorage.setItem('gkcsn_custom_ais', JSON.stringify(S.customAis));
@@ -209,7 +208,11 @@ async function send(){
   const currentAi = S.customAis[S.activeAiIdx];
   if(!currentAi) { toast('⚠️ 请先在设置里添加或选择 AI'); return; }
   S.msgs.push({role: 'user', content: text, ts: now2()});
-  S.inp = ''; S.loading = true; S.isTypingFocused = false; render(); scrollEnd();
+  S.inp = ''; S.loading = true; 
+  // 清空文本框内容
+  const ta = document.getElementById('mInp');
+  if(ta) ta.value = '';
+  render(); scrollEnd();
   try {
     const hist = S.msgs.slice(-11, -1).filter(m => m.role==='user' || m.role==='assistant');
     const reply = await requestAi(currentAi, buildSys(text), hist, text);
@@ -251,33 +254,37 @@ function deleteAi(idx, e) {
   render();
 }
 
+// 🔥 新增：专门用于单独高频刷新 3D 舞台的轻量级函数，不触碰任何底层 DOM 骨架
+function updateStage3D() {
+  const stage = document.getElementById('dynamicStage3D');
+  if(!stage) return;
+  let orbitHtml = '';
+  const aiCount = S.customAis.length;
+  S.customAis.forEach((ai, idx) => {
+    const personalAngle = S.angle + (idx * (Math.PI * 2 / aiCount));
+    const rx = 80; 
+    const ry = 30; 
+    const x = Math.cos(personalAngle) * rx;
+    const y = Math.sin(personalAngle) * ry;
+    
+    const sinNorm = Math.sin(personalAngle);
+    const scale = 0.7 + (sinNorm + 1) * 0.25; 
+    const opacity = 0.4 + (sinNorm + 1) * 0.3; 
+    const zIndex = Math.floor((sinNorm + 1) * 10);
+
+    orbitHtml += `<div class="orbit-ai" style="transform: translate3d(${x}px, ${y}px, 0px) scale(${scale}); opacity: ${opacity}; z-index: ${zIndex};">
+      ● ${ai.name}
+    </div>`;
+  });
+  stage.innerHTML = `<div class="wcat">🐱</div>${orbitHtml}`;
+}
+
 function render(){
   let msgsHtml = '';
   if(S.msgs.length === 0) {
-    let orbitHtml = '';
-    const aiCount = S.customAis.length;
-    S.customAis.forEach((ai, idx) => {
-      const personalAngle = S.angle + (idx * (Math.PI * 2 / aiCount));
-      const rx = 80; 
-      const ry = 30; 
-      const x = Math.cos(personalAngle) * rx;
-      const y = Math.sin(personalAngle) * ry;
-      
-      const sinNorm = Math.sin(personalAngle);
-      const scale = 0.7 + (sinNorm + 1) * 0.25; 
-      const opacity = 0.4 + (sinNorm + 1) * 0.3; 
-      const zIndex = Math.floor((sinNorm + 1) * 10);
-
-      orbitHtml += `<div class="orbit-ai" style="transform: translate3d(${x}px, ${y}px, 0px) scale(${scale}); opacity: ${opacity}; z-index: ${zIndex};">
-        ● ${ai.name}
-      </div>`;
-    });
-
     msgsHtml = `<div class="welcome">
-      <div class="stage3d">
-        <div class="wcat">🐱</div>
-        ${orbitHtml}
-      </div>
+      <div class="stage3d" id="dynamicStage3D">
+        </div>
       <div class="wtitle">工控成神录 <span>CORE</span></div>
       <div class="wdesc">驱动引擎：${S.customAis[S.activeAiIdx]?.name || '未添加'} · 模式：${S.role.name}</div>
     </div>`;
@@ -337,8 +344,11 @@ function render(){
         <button class="addbtn" onclick="addNewAi()">确 认 天 降 模 型</button>
       </div>
 
-      <button class="setclose" onclick="S.showSet=false;render()">保存并关闭面</button>
+      <button class="setclose" onclick="S.showSet=false;render()">保存并关闭</button>
     </div></div>` : '';      
+
+  // 获取文本框当前可能存留的值，避免重绘打断打字
+  const oldVal = document.getElementById('mInp')?.value || S.inp;
 
   document.getElementById('app').innerHTML = `
     ${S.toast ? `<div class="toast">${S.toast}</div>` : ''}
@@ -357,33 +367,31 @@ function render(){
     <main id="chatMain">${msgsHtml}<div id="end"></div></main>
     <footer>
       <div class="inputrow">
-        <textarea id="mInp" rows="2" placeholder="" 
-          onfocus="S.isTypingFocused=true" 
-          onblur="setTimeout(()=>{S.isTypingFocused=false},200)"
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}" 
-          oninput="S.inp=this.value">${S.inp}</textarea>
-        <button class="sendbtn" onclick="send()" ${S.loading||!S.inp.trim()?'disabled':''}>${S.loading?'⏳':'SEND'}</button>
+        <textarea id="mInp" rows="2" placeholder="" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}" oninput="S.inp=this.value"></textarea>
+        <button class="sendbtn" onclick="send()" ${S.loading?'disabled':''}>${S.loading?'⏳':'SEND'}</button>
       </div>
       <div class="hint">直击痛点发送 · 隐式自动锁定硬核经验</div>
     </footer>
     ${setHtml}`;
 
   const ta = document.getElementById('mInp');
-  if(ta) {
-    // 🔥 绝杀逻辑：只有在非录入状态下，才重设光标位置，绝不打断键盘状态
-    if(!S.isTypingFocused) {
-      ta.setSelectionRange(ta.value.length, ta.value.length);
-    }
+  if(ta) { 
+    ta.value = oldVal; 
+    // 只有在点发送清空或页面首次加载时调整，打字期间绝不强行重设光标
+    if(!oldVal) { ta.focus(); }
   }
+  
+  // 渲染完毕后立即执行一次3D初始化更新
+  if(S.msgs.length === 0) { updateStage3D(); }
   scrollEnd();
 }
 
 // 维持高帧率 3D 动力时钟
 setInterval(() => {
-  // 🔥 绝杀核心逻辑：只有在没发消息、没开设置、且用户【没有点开输入框】时才允许高频render重绘
-  if (S.msgs.length === 0 && !S.showSet && !S.isTypingFocused) {
+  // 🔥 终极绝杀：只有在主页看板模式、且没有打开设置面板时，才让粒子旋转，并且只针对3D区域进行精准样式修改，不触碰任何输入框 DOM 节点
+  if (S.msgs.length === 0 && !S.showSet) {
     S.angle += 0.025; 
-    render();
+    updateStage3D();
   }
 }, 30);
 
