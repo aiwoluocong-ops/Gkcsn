@@ -20,18 +20,20 @@ header{background:#0f172a;padding:12px 14px;border-bottom:1px solid rgba(245,158
 .chip:hover{border-color:#334155;color:#94a3b8}
 .chip.on{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,0.07)}
 .chip.cg{border-color:#38bdf8;color:#38bdf8;background:rgba(56,189,248,0.07)}
+.chip.ca{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,0.07)}
+.chip.cp{border-color:#a78bfa;color:#a78bfa;background:rgba(167,139,250,0.07)}
 .sep{width:1px;height:16px;background:#1e293b;flex-shrink:0;margin:0 3px;align-self:center}
 main{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:#1e293b transparent}
 main::-webkit-scrollbar{width:3px}
 main::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
 
-/* 3D 环绕动态猫咪特效区 */
+/* 3D 动态收缩环绕舞台 */
 .welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;padding:30px 16px;text-align:center;position:relative}
-.stage3d{width:240px;height:200px;position:relative;display:flex;align-items:center;justify-content:center;perspective:1000px}
-.wcat{font-size:54px;position:absolute;z-index:10}
-.orbit-ai{position:absolute;padding:2px 6px;background:rgba(56,189,248,0.15);border:1px solid #38bdf8;border-radius:4px;color:#38bdf8;font-size:10px;white-space:nowrap;font-weight:700;pointer-events:none;transform-style:preserve-3d;box-shadow:0 0 8px rgba(56,189,248,0.3)}
+.stage3d{width:240px;height:180px;position:relative;display:flex;align-items:center;justify-content:center;perspective:1000px}
+.wcat{font-size:54px;position:absolute;z-index:10;user-select:none}
+.orbit-ai{position:absolute;padding:2px 6px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.4);border-radius:4px;color:#38bdf8;font-size:10px;white-space:nowrap;font-weight:700;pointer-events:none;box-shadow:0 0 8px rgba(56,189,248,0.2);transform-origin:center center}
 
-.wtitle{font-size:17px;font-weight:900;color:#f59e0b;letter-spacing:3px;margin-top:10px}
+.wtitle{font-size:17px;font-weight:900;color:#f59e0b;letter-spacing:3px;margin-top:5px}
 .wdesc{font-size:11px;color:#475569;line-height:1.8}
 .msgrow{display:flex;gap:7px;align-items:flex-start}
 .msgrow.u{flex-direction:row-reverse}
@@ -65,24 +67,21 @@ textarea:focus{border-color:rgba(245,158,11,0.5)}
 .sendbtn:not(:disabled):hover{background:#fbbf24;box-shadow:0 0 12px rgba(245,158,11,0.4)}
 .hint{font-size:10px;color:#1e293b;margin-top:5px;text-align:center}
 
-/* 全新强化版设置大面板 */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:15px;overflow-y:auto}
-.setbox{background:#0f172a;border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:16px;width:100%;max-width:420px;max-height:92dvh;overflow-y:auto}
-.settitle{font-size:13px;color:#f59e0b;font-weight:700;letter-spacing:2px;margin-bottom:12px;border-bottom:1px solid rgba(245,158,11,0.15);padding-bottom:4px}
+/* 设置面超强面板 */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:15px}
+.setbox{background:#0f172a;border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:16px;width:100%;max-width:400px;max-height:90dvh;overflow-y:auto}
+.settitle{font-size:12px;color:#f59e0b;font-weight:700;letter-spacing:2px;margin-bottom:10px;border-bottom:1px solid rgba(245,158,11,0.15);padding-bottom:3px}
 .setrow{display:flex;align-items:center;gap:6px;margin-bottom:8px}
 .setname{font-size:11px;color:#64748b;width:75px;flex-shrink:0}
 .setinput{flex:1;background:rgba(255,255,255,0.04);border:1px solid #1e293b;border-radius:5px;padding:5px 8px;color:#f8fafc;font-size:11px;font-family:Consolas,monospace;outline:none}
 .setinput:focus{border-color:#f59e0b}
 .setdel{background:none;border:1px solid rgba(239,68,68,0.4);color:#ef4444;padding:2px 6px;border-radius:4px;cursor:pointer;font-size:10px;font-family:inherit}
-.addbox{background:rgba(255,255,255,0.02);border:1px dashed #334155;border-radius:8px;padding:10px;margin-top:10px;margin-bottom:14px}
-.addbtn{width:100%;padding:5px;background:#38bdf8;color:#020617;border:none;border-radius:5px;cursor:pointer;font-weight:700;font-size:11px;font-family:inherit;margin-top:6px}
-
-/* 搬迁至设置内的记忆库样式 */
-.setmempanel{background:rgba(255,255,255,0.02);border:1px solid #1e293b;border-radius:6px;padding:8px;margin-bottom:10px}
-.setmemlist{max-height:120px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.addbox{background:rgba(255,255,255,0.02);border:1px dashed #334155;border-radius:8px;padding:10px;margin-top:10px;margin-bottom:12px}
+.addbtn{width:100%;padding:6px;background:#38bdf8;color:#020617;border:none;border-radius:5px;cursor:pointer;font-weight:700;font-size:11px;font-family:inherit;margin-top:6px}
+.setmempanel{background:rgba(255,255,255,0.02);border:1px solid #1e293b;border-radius:6px;padding:8px;margin-bottom:12px}
+.setmemlist{max-height:100px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-top:5px}
 .memitem{font-size:11px;color:#94a3b8;line-height:1.4;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
-.memclear{background:none;border:none;color:#ef4444;font-size:10px;cursor:pointer;font-family:inherit}
-
+.memclear{background:none;border:none;color:#ef4444;font-size:10px;cursor:pointer;font-family:inherit;font-weight:700}
 .setclose{width:100%;padding:9px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#f59e0b;border-radius:7px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(245,158,11,0.9);color:#020617;padding:5px 16px;border-radius:16px;font-size:11px;z-index:300;font-weight:700;white-space:nowrap}
 </style>
@@ -90,12 +89,6 @@ textarea:focus{border-color:rgba(245,158,11,0.5)}
 <body>
 <div class="container" id="app"></div>
 <script>
-// 系统默认内置的2个基础模板类型，供自定义接口参考
-const DEFAULT_MODELS = [
-  {id:'gemini-default',name:'Gemini原生',url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=',modelName:'gemini-2.0-flash'},
-  {id:'deepseek-default',name:'DeepSeek原生',url:'https://api.deepseek.com/v1/chat/completions',modelName:'deepseek-chat'}
-];
-
 const ROLES=[
   {id:'fault',icon:'⚡',name:'故障诊断',prompt:'核心任务：工控故障诊断。输出：①最可能原因（按概率降序）②具体排查步骤③寄存器/参数地址。禁止废话，直击要害。'},
   {id:'plc',icon:'💻',name:'PLC编程',prompt:'核心任务：PLC编程。直接给出能粘贴使用的代码，注明平台（博途SCL/三菱ST/欧姆龙ST），必须有中文注释。'},
@@ -107,7 +100,6 @@ const PERSONA_CAT=`你是《工控成神录》AI副驾驶，代号"黑猫特工"
 const KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧姆龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
 const extractKW=t=>KWS.filter(k=>t.includes(k));
 
-// 初始化状态数据
 let S = {
   role: ROLES[0],
   msgs: [],
@@ -116,9 +108,7 @@ let S = {
   toast: '',
   toastTimer: null,
   inp: '',
-  // 选中的自定义AI索引
   activeAiIdx: 0,
-  // 用户自定义添加的 AI 列表
   customAis: (() => {
     try {
       const saved = localStorage.getItem('gkcsn_custom_ais');
@@ -129,7 +119,6 @@ let S = {
     } catch(e) { return []; }
   })(),
   mems: (() => { try{return JSON.parse(localStorage.getItem('gkcsn_m')||'[]')}catch{return[]} })(),
-  // 环绕动画角度数据
   angle: 0
 };
 
@@ -143,24 +132,15 @@ function toast(msg){
   S.toastTimer=setTimeout(()=>{S.toast=''; render();},2200);
 }
 
-// 核心通用多路网络请求引擎
 async function requestAi(ai, sys, hist, msg) {
   if(!ai.key) throw new Error('未配置该 AI 的 API Key，请在设置中填写！');
-  
-  // 1. Gemini 原生结构请求
   if(ai.type === 'gemini' || ai.url.includes('generativelanguage.googleapis.com')) {
     const contents = [];
     hist.forEach(m => contents.push({role: m.role==='user'?'user':'model', parts:[{text: m.content}]}));
     contents.push({role:'user', parts:[{text: msg}]});
-    
-    // 如果URL最后不带key=，自动帮补齐
     let fullUrl = ai.url;
-    if(!fullUrl.includes('key=')) {
-      fullUrl += (fullUrl.includes('?') ? '&' : '?') + 'key=' + ai.key;
-    } else if(fullUrl.endsWith('key=')) {
-      fullUrl += ai.key;
-    }
-
+    if(!fullUrl.includes('key=')) fullUrl += (fullUrl.includes('?') ? '&' : '?') + 'key=' + ai.key;
+    else if(fullUrl.endsWith('key=')) fullUrl += ai.key;
     const r = await fetch(fullUrl, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -172,14 +152,10 @@ async function requestAi(ai, sys, hist, msg) {
     if(!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e?.error?.message || 'HTTP ' + r.status); }
     const d = await r.json();
     return d.candidates?.[0]?.content?.parts?.[0]?.text || '（无返回内容）';
-  } 
-  
-  // 2. 标准 OpenAI / DeepSeek / 各种中转通用格式
-  else {
+  } else {
     const messages = [{role: 'system', content: sys}];
     hist.forEach(m => messages.push({role: m.role==='user'?'user':'assistant', content: m.content}));
     messages.push({role: 'user', content: msg});
-
     const r = await fetch(ai.url, {
       method: 'POST',
       headers: {
@@ -231,21 +207,15 @@ function scrollEnd(){ setTimeout(() => { const m = document.querySelector('main'
 async function send(){
   const text = S.inp.trim();
   if(!text || S.loading) return;
-  
   const currentAi = S.customAis[S.activeAiIdx];
   if(!currentAi) { toast('⚠️ 请先在设置里添加或选择 AI'); return; }
-
   S.msgs.push({role: 'user', content: text, ts: now2()});
   S.inp = ''; S.loading = true; render(); scrollEnd();
-  
   try {
     const hist = S.msgs.slice(-11, -1).filter(m => m.role==='user' || m.role==='assistant');
     const reply = await requestAi(currentAi, buildSys(text), hist, text);
     const kw = extractKW(text + reply);
-    
     S.msgs.push({role: 'assistant', content: reply, aiName: currentAi.name, roleName: S.role.name, ts: now2(), kw});
-    
-    // 沉淀进隐式记忆库
     const mem = {
       id: Date.now(),
       time: nowF(),
@@ -260,16 +230,13 @@ async function send(){
   S.loading = false; render(); scrollEnd();
 }
 
-// 添加新的自定义AI账号和接口
 function addNewAi() {
   const name = document.getElementById('new_name')?.value?.trim();
   const url = document.getElementById('new_url')?.value?.trim();
   const key = document.getElementById('new_key')?.value?.trim();
   const mName = document.getElementById('new_mname')?.value?.trim();
   const type = document.getElementById('new_type')?.value;
-
   if(!name || !url || !key) { alert('请将名称、接口地址和Key填写完整！'); return; }
-
   S.customAis.push({ name, url, key, modelName: mName, type });
   saveCustomAis();
   toast('✅ 成功添加新 AI 接口');
@@ -278,7 +245,7 @@ function addNewAi() {
 
 function deleteAi(idx, e) {
   e.stopPropagation();
-  if(S.customAis.length <= 1) { alert('请至少保留一个 AI 接口调用！'); return; }
+  if(S.customAis.length <= 1) { alert('请至少保留一个 AI 接口！'); return; }
   S.customAis.splice(idx, 1);
   if(S.activeAiIdx >= S.customAis.length) S.activeAiIdx = 0;
   saveCustomAis();
@@ -287,26 +254,22 @@ function deleteAi(idx, e) {
 
 function render(){
   let msgsHtml = '';
-  
-  // 1. 纯净空白欢迎界面 + 3D收缩环绕猫咪动态特效
   if(S.msgs.length === 0) {
     let orbitHtml = '';
     const aiCount = S.customAis.length;
-    // 在画布渲染时计算各AI粒子的弧度差
     S.customAis.forEach((ai, idx) => {
+      // 规整的弧度拆分
       const personalAngle = S.angle + (idx * (Math.PI * 2 / aiCount));
-      // 椭圆轨迹计算
-      const rx = 85; 
-      const ry = 35; 
+      const rx = 80; 
+      const ry = 30; 
       const x = Math.cos(personalAngle) * rx;
       const y = Math.sin(personalAngle) * ry;
       
-      // 深度动态收缩比：实现最上面最小、中间最大、最下面最大的立体透视感
-      // 映射到 sin 值：当 sin=-1(最上方) 缩到最小，sin=1(最下方) 放大到极限
-      const sinNorm = Math.sin(personalAngle); // 范围 -1 到 1
-      const scale = 0.65 + (sinNorm + 1) * 0.25; // 缩放范围 0.65 到 1.15
-      const opacity = 0.3 + (sinNorm + 1) * 0.35; // 透明度层级
-      const zIndex = Math.floor((sinNorm + 1) * 10); // 前后遮挡关系
+      // 极速动态深度收缩核心：sin控制上下深浅关系 (最上边sin=-1最小，最下边sin=1最大)
+      const sinNorm = Math.sin(personalAngle);
+      const scale = 0.7 + (sinNorm + 1) * 0.25; 
+      const opacity = 0.4 + (sinNorm + 1) * 0.3; 
+      const zIndex = Math.floor((sinNorm + 1) * 10);
 
       orbitHtml += `<div class="orbit-ai" style="transform: translate3d(${x}px, ${y}px, 0px) scale(${scale}); opacity: ${opacity}; z-index: ${zIndex};">
         ● ${ai.name}
@@ -319,10 +282,9 @@ function render(){
         ${orbitHtml}
       </div>
       <div class="wtitle">工控成神录 <span>CORE</span></div>
-      <div class="wdesc">当前驱动：${S.customAis[S.activeAiIdx]?.name || '未选择'} · 模式：${S.role.name}</div>
+      <div class="wdesc">驱动引擎：${S.customAis[S.activeAiIdx]?.name || '未添加'} · 模式：${S.role.name}</div>
     </div>`;
   } else {
-    // 2. 对话渲染路径
     const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     msgsHtml = S.msgs.map(m => {
       if(m.role === 'user') return `<div class="msgrow u"><div class="bbl u">${esc(m.content)}<div class="mtr">${m.ts}</div></div></div>`;
@@ -332,64 +294,61 @@ function render(){
         <div class="mmeta"><span class="mtag">${m.aiName}</span><span style="font-size:10px;color:#475569">${m.roleName}</span><span class="mts">${m.ts}</span></div>
         ${renderContent(m.content)}${kwtags}</div></div>`;
     }).join('');
-    if(S.loading) msgsHtml += `<div class="msgrow"><div class="av">⏳</div><div class="bbl ai"><div class="typing"><i></i><i></i><i></i><span class="ttxt">正在群脑提炼现场方案...</span></div></div></div>`;
+    if(S.loading) msgsHtml += `<div class="msgrow"><div class="av">⏳</div><div class="bbl ai"><div class="typing"><i></i><i></i><i></i><span class="ttxt">正在全力提炼最优解...</span></div></div></div>`;
   }
 
-  // 3. 彻底搬迁转移进设置面板的记忆库渲染
   const setMemHtml = S.mems.length === 0
-    ? '<div style="font-size:11px;color:#475569;text-align:center;padding:10px 0">暂无知识记忆 · 现场对话后将自动沉淀</div>'
+    ? '<div style="font-size:11px;color:#475569;text-align:center;padding:10px 0">暂无经验记忆 · 现场实战后将自动自动沉淀</div>'
     : S.mems.map(m => `<div class="memitem"><span>[${m.time}]</span> ${m.text}</div>`).join('');
 
-  // 4. 高级自定义大设置弹窗
   const setHtml = S.showSet ? `<div class="overlay" id="setOverlay" onclick="if(event.target===this){S.showSet=false;render();}">
     <div class="setbox">
-      <div class="settitle">⚙️ 知识记忆库 (${S.mems.length}/50)</div>
+      <div class="settitle">🧠 工控成神录 · 知识记忆库 (${S.mems.length}/50)</div>
       <div class="setmempanel">
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;color:#64748b">已自动沉淀的硬核实战记忆：</span>
-          ${S.mems.length>0?`<button class="memclear" onclick="S.mems=[];localStorage.removeItem('gkcsn_m');toast('🗑 记忆库已清空');render();">清空全部</button>`:''}
+          <span style="font-size:11px;color:#64748b">已自动锁定的实战硬核数据：</span>
+          ${S.mems.length > 0 ? `<button class="memclear" onclick="S.mems=[];localStorage.removeItem('gkcsn_m');toast('🗑 记忆库已清空');render();">清空全部</button>` : ''}
         </div>
         <div class="setmemlist">${setMemHtml}</div>
       </div>
 
-      <div class="settitle" style="margin-top:15px">⚙️ AI 自由API接口管理</div>
-      <div style="max-height:180px;overflow-y:auto;margin-bottom:8px;">
+      <div class="settitle" style="margin-top:14px">⚙️ AI 自由 API 接口管理</div>
+      <div style="max-height:160px;overflow-y:auto;margin-bottom:6px;">
         ${S.customAis.map((ai, idx) => `<div class="setrow" style="background:rgba(255,255,255,0.02);padding:6px;border-radius:6px;border:1px solid #1e293b;margin-bottom:5px">
-          <div style="flex:1">
-            <div style="font-weight:700;font-size:12px;color:#38bdf8">${ai.name} <span style="font-size:9px;color:#475569;font-weight:normal">(${ai.modelName||'默认'})</span></div>
-            <div style="font-size:9px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px">${ai.url}</div>
+          <div style="flex:1; overflow:hidden">
+            <div style="font-weight:700;font-size:12px;color:#38bdf8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ai.name} <span style="font-size:9px;color:#475569;font-weight:normal">(${ai.modelName||'default'})</span></div>
+            <div style="font-size:9px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">${ai.url}</div>
           </div>
-          <input class="setinput" type="password" style="max-width:90px;margin:0 4px" placeholder="${ai.key?'●●●●已存':'未配Key'}" onchange="if(this.value){S.customAis[${idx}].key=this.value.trim();saveCustomAis();toast('Key已保存')}">
+          <input class="setinput" type="password" style="max-width:80px;margin:0 4px" placeholder="${ai.key?'●●●●已配':'未配Key'}" onchange="if(this.value){S.customAis[${idx}].key=this.value.trim();saveCustomAis();toast('Key已就位')}">
           <button class="setdel" onclick="deleteAi(${idx}, event)">删除</button>
         </div>`).join('')}
       </div>
 
       <div class="addbox">
-        <div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700">➕ 自定义增加新 AI 通道</div>
-        <div class="setrow"><span class="setname">自定义自定义名字</span><input class="setinput" id="new_name" placeholder="例如：我的 DeepSeek"></div>
-        <div class="setrow"><span class="setname">接口地址URL</span><input class="setinput" id="new_url" placeholder="完整 https://... 接口地址"></div>
-        <div class="setrow"><span class="setname">模型代码Name</span><input class="setinput" id="new_mname" placeholder="例如：deepseek-chat / 可不填"></div>
-        <div class="setrow"><span class="setname">API Key密匙</span><input class="setinput" type="password" id="new_key" placeholder="粘贴对应的 API KEY"></div>
+        <div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700">➕ 接入新自定义 AI 引擎</div>
+        <div class="setrow"><span class="setname">AI 别称</span><input class="setinput" id="new_name" placeholder="如：我的 DeepSeek"></div>
+        <div class="setrow"><span class="setname">API URL</span><input class="setinput" id="new_url" placeholder="完整 https://... 请求端点"></div>
+        <div class="setrow"><span class="setname">模型代码</span><input class="setinput" id="new_mname" placeholder="如 deepseek-chat (选填)"></div>
+        <div class="setrow"><span class="setname">API Key</span><input class="setinput" type="password" id="new_key" placeholder="粘贴密钥 KEY"></div>
         <div class="setrow">
-          <span class="setname">解析标准</span>
+          <span class="setname">解析协议</span>
           <select id="new_type" class="setinput" style="background:#0a0f1a;color:#fff">
-            <option value="openai">标准 OpenAI 兼容类 (DeepSeek/中转)</option>
-            <option value="gemini">标准 Google Gemini 协议类</option>
+            <option value="openai">OpenAI 兼容规范 (DeepSeek/各中转)</option>
+            <option value="gemini">Google Gemini 原生规范</option>
           </select>
         </div>
-        <button class="addbtn" onclick="addNewAi()">确 认 添 加 通 道</button>
+        <button class="addbtn" onclick="addNewAi()">确 认 天 降 模 型</button>
       </div>
 
-      <button class="setclose" onclick="S.showSet=false;render()">完 成 关 闭</button>
+      <button class="setclose" onclick="S.showSet=false;render()">保存并关闭面</button>
     </div></div>` : '';      
 
-  // 5. 渲染整页骨架
   document.getElementById('app').innerHTML = `
     ${S.toast ? `<div class="toast">${S.toast}</div>` : ''}
     <header>
       <div class="logo">工控成神录 <span>CORE</span></div>
       <div class="hdr">
-        <button class="hbtn" onclick="S.msgs=[];toast('🗑 对话已清空')">清空</button>
+        <button class="hbtn" onclick="S.msgs=[];toast('🗑 已清空当前会话')">清空</button>
         <button class="hbtn ${S.showSet?'on':''}" onclick="S.showSet=!S.showSet;render()">⚙ 管理面</button>
       </div>
     </header>
@@ -404,7 +363,7 @@ function render(){
         <textarea id="mInp" rows="2" placeholder="" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}" oninput="S.inp=this.value">${S.inp}</textarea>
         <button class="sendbtn" onclick="send()" ${S.loading||!S.inp.trim()?'disabled':''}>${S.loading?'⏳':'SEND'}</button>
       </div>
-      <div class="hint">直接回车发送方案 · 隐式自动提炼现场记忆</div>
+      <div class="hint">直击痛点发送 · 隐式自动锁定硬核经验</div>
     </footer>
     ${setHtml}`;
 
@@ -413,10 +372,10 @@ function render(){
   scrollEnd();
 }
 
-// 建立全局独立的高频高精度 3D 渲染器时钟，确保环绕粒子立体规律不颤抖
+// 维持高帧率 3D 动力时钟
 setInterval(() => {
   if (S.msgs.length === 0 && !S.showSet) {
-    S.angle += 0.024; // 控制粒子在现场界面环绕公转的速度
+    S.angle += 0.025; // 旋转驱动速度
     render();
   }
 }, 30);
