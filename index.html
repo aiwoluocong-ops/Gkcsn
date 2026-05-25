@@ -98,6 +98,27 @@ const PERSONA_CAT=`你是《工控成神录》AI副驾驶，代号"黑猫特工"
 const KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧姆龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
 const extractKW=t=>KWS.filter(k=>t.includes(k));
 
+// 安全的本地数据恢复
+let savedAis = [];
+try {
+  const localData = localStorage.getItem('gkcsn_custom_ais');
+  if(localData) savedAis = JSON.parse(localData);
+} catch(e) { savedAis = []; }
+
+if(!Array.isArray(savedAis) || savedAis.length === 0) {
+  savedAis = [
+    {name: 'Gemini 2.0', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=', key: '', modelName: 'gemini-2.0-flash', type: 'gemini'},
+    {name: 'DeepSeek V3', url: 'https://api.deepseek.com/v1/chat/completions', key: '', modelName: 'deepseek-chat', type: 'openai'}
+  ];
+}
+
+let savedMems = [];
+try {
+  const localMems = localStorage.getItem('gkcsn_m');
+  if(localMems) savedMems = JSON.parse(localMems);
+} catch(e) { savedMems = []; }
+if(!Array.isArray(savedMems)) savedMems = [];
+
 let S = {
   role: ROLES[0],
   msgs: [],
@@ -107,16 +128,8 @@ let S = {
   toastTimer: null,
   inp: '',
   activeAiIdx: 0,
-  customAis: (() => {
-    try {
-      const saved = localStorage.getItem('gkcsn_custom_ais');
-      return saved ? JSON.parse(saved) : [
-        {name: 'Gemini 2.0', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=', key: '', modelName: 'gemini-2.0-flash', type: 'gemini'},
-        {name: 'DeepSeek V3', url: 'https://api.deepseek.com/v1/chat/completions', key: '', modelName: 'deepseek-chat', type: 'openai'}
-      ];
-    } catch(e) { return []; }
-  })(),
-  mems: (() => { try{return JSON.parse(localStorage.getItem('gkcsn_m')||'[]')}catch{return[]} })(),
+  customAis: savedAis,
+  mems: savedMems,
   angle: 0
 };
 
@@ -209,7 +222,6 @@ async function send(){
   if(!currentAi) { toast('⚠️ 请先在设置里添加或选择 AI'); return; }
   S.msgs.push({role: 'user', content: text, ts: now2()});
   S.inp = ''; S.loading = true; 
-  // 清空文本框内容
   const ta = document.getElementById('mInp');
   if(ta) ta.value = '';
   render(); scrollEnd();
@@ -254,7 +266,6 @@ function deleteAi(idx, e) {
   render();
 }
 
-// 🔥 新增：专门用于单独高频刷新 3D 舞台的轻量级函数，不触碰任何底层 DOM 骨架
 function updateStage3D() {
   const stage = document.getElementById('dynamicStage3D');
   if(!stage) return;
@@ -283,8 +294,7 @@ function render(){
   let msgsHtml = '';
   if(S.msgs.length === 0) {
     msgsHtml = `<div class="welcome">
-      <div class="stage3d" id="dynamicStage3D">
-        </div>
+      <div class="stage3d" id="dynamicStage3D"></div>
       <div class="wtitle">工控成神录 <span>CORE</span></div>
       <div class="wdesc">驱动引擎：${S.customAis[S.activeAiIdx]?.name || '未添加'} · 模式：${S.role.name}</div>
     </div>`;
@@ -347,7 +357,6 @@ function render(){
       <button class="setclose" onclick="S.showSet=false;render()">保存并关闭</button>
     </div></div>` : '';      
 
-  // 获取文本框当前可能存留的值，避免重绘打断打字
   const oldVal = document.getElementById('mInp')?.value || S.inp;
 
   document.getElementById('app').innerHTML = `
@@ -356,7 +365,7 @@ function render(){
       <div class="logo">工控成神录 <span>CORE</span></div>
       <div class="hdr">
         <button class="hbtn" onclick="S.msgs=[];toast('🗑 已清空当前会话')">清空</button>
-        <button class="hbtn ${S.showSet?'on':''}" onclick="S.showSet=!S.showSet;render()">⚙ 管理面</button>
+        <button class="hbtn ${S.showSet?'on':''}" onclick="S.showSet=!S.showSet;render()">⚙ ⚙ 管理面</button>
       </div>
     </header>
     <div class="ctrlbar">
@@ -367,28 +376,24 @@ function render(){
     <main id="chatMain">${msgsHtml}<div id="end"></div></main>
     <footer>
       <div class="inputrow">
-        <textarea id="mInp" rows="2" placeholder="" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}" oninput="S.inp=this.value"></textarea>
+        <textarea id="mInp" rows="2" placeholder="输入工控突发故障或控制逻辑..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}" oninput="S.inp=this.value"></textarea>
         <button class="sendbtn" onclick="send()" ${S.loading?'disabled':''}>${S.loading?'⏳':'SEND'}</button>
       </div>
-      <div class="hint">直击痛点发送 · 隐式自动锁定硬核经验</div>
+      <div class="hint">物理回车发送 · 自动拦截提炼硬核故障记忆</div>
     </footer>
     ${setHtml}`;
 
   const ta = document.getElementById('mInp');
   if(ta) { 
     ta.value = oldVal; 
-    // 只有在点发送清空或页面首次加载时调整，打字期间绝不强行重设光标
-    if(!oldVal) { ta.focus(); }
+    if(!oldVal && S.msgs.length > 0) { ta.focus(); }
   }
   
-  // 渲染完毕后立即执行一次3D初始化更新
   if(S.msgs.length === 0) { updateStage3D(); }
   scrollEnd();
 }
 
-// 维持高帧率 3D 动力时钟
 setInterval(() => {
-  // 🔥 终极绝杀：只有在主页看板模式、且没有打开设置面板时，才让粒子旋转，并且只针对3D区域进行精准样式修改，不触碰任何输入框 DOM 节点
   if (S.msgs.length === 0 && !S.showSet) {
     S.angle += 0.025; 
     updateStage3D();
