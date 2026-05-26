@@ -49,7 +49,6 @@ main{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:
 .mts{font-size:10px;color:#334155;margin-left:auto}
 .mtr{font-size:10px;color:#334155;text-align:right;margin-top:4px;display:flex;justify-content:space-between;align-items:center;font-weight:normal}
 
-/* 🔄 重试功能专用样式微调 */
 .retry-btn{color:#020617;background:rgba(255,255,255,0.45);padding:1px 6px;border-radius:4px;text-decoration:none;font-weight:900;font-size:10px;cursor:pointer;margin-left:8px;transition:background 0.2s}
 .retry-btn:hover{background:#ffffff}
 .err-retry-action{background:#ef4444;color:#fff;border:none;padding:4px 10px;border-radius:5px;font-size:11px;margin-top:8px;cursor:pointer;font-family:inherit;font-weight:bold;display:inline-block}
@@ -227,7 +226,6 @@ function handleAdminLogin() {
   }
 }
 
-// 👑 管理员核心机制：动态生成并打包包含最新核心 AI 数据的文件
 function exportNewHtmlCode() {
   var currentCode = document.documentElement.outerHTML;
   var dataStr = "var PERMANENT_AIS = " + JSON.stringify(PERMANENT_AIS, null, 2) + ";";
@@ -241,7 +239,6 @@ function exportNewHtmlCode() {
   toast("💾 最新全开放多设备文件已生成并下载！");
 }
 
-// 🦾 一键重试引擎：防止特殊符号和代码摧毁 HTML 结构
 function exeRetry(b64Data) {
   if(S.loading) return;
   try {
@@ -267,7 +264,6 @@ async function send(){
   var welcomeBox = chatMain.querySelector('.welcome');
   if(welcomeBox) { chatMain.innerHTML = ''; }
 
-  // 🔒 加固：将发送的文本封装成 Base64 传递，彻底断绝 PLC 代码带来的单双引号冲突问题
   var secureB64Text = btoa(unescape(encodeURIComponent(text)));
 
   var uRow = document.createElement('div'); uRow.className = 'msgrow u';
@@ -336,7 +332,6 @@ async function send(){
     chatMain.insertBefore(fRow, loadRow);
   } catch(e) {
     var errRow = document.createElement('div'); errRow.className = 'msgrow';
-    // ⚡ 遇到中断报错时，错误气泡框直接渲染“一键原地重连复活按钮”
     errRow.innerHTML = '<div class="av">⚠</div><div class="bbl er">❌ 通信中断: ' + e.message + '<br><button class="err-retry-action" onclick="exeRetry(\'' + secureB64Text + '\')">⚡ 重新连接</button></div>';
     chatMain.insertBefore(errRow, loadRow);
   }
@@ -345,7 +340,6 @@ async function send(){
   S.loading = false; if(sendBtn) sendBtn.disabled = false; scrollEnd();
 }
 
-// 核心席位管理逻辑
 function addPermanentNodeAdmin() {
   var name = document.getElementById('p_name').value.trim();
   var url = document.getElementById('p_url').value.trim();
@@ -364,7 +358,6 @@ function deletePermanentNodeAdmin(idx) {
   renderOverlay舱();
 }
 
-// 本地设备独享席位管理
 function addLocalNode() {
   var name = document.getElementById('l_name').value.trim();
   var url = document.getElementById('l_url').value.trim();
@@ -423,22 +416,20 @@ function toggleOverlay(show) { S.showSet = show; var container = document.getEle
 function renderOverlay舱() {
   var container = document.getElementById('overlayContainer'); if(!container) return;
   
-  // 核心永久通道列表展示
   var permanentListHtml = (PERMANENT_AIS.length === 0) ? '<div style="font-size:10px;color:#475569">暂无永久核心接口</div>' : PERMANENT_AIS.map(function(ai, idx){
     return '<div class="setrow" style="background:rgba(52,211,153,0.02);padding:4px;border-radius:4px;border:1px solid rgba(52,211,153,0.2)"><div style="font-size:11px;color:#34d399;flex:1">👑 '+ai.name+'</div>' + (S.isAdmin ? '<button class="setdel" onclick="deletePermanentNodeAdmin('+idx+')">移除</button>' : '') + '</div>';
   }).join('');
 
-  // 设备独享本地通道列表展示
   var localListHtml = (S.localAis.length === 0) ? '<div style="font-size:10px;color:#475569">暂无当前设备独享接口</div>' : S.localAis.map(function(ai, idx){
     return '<div class="setrow" style="background:rgba(255,255,255,0.02);padding:4px;border-radius:4px;border:1px solid #1e293b"><div style="font-size:11px;color:#38bdf8;flex:1">⚡ '+ai.name+'</div><button class="setdel" onclick="deleteLocalNode('+idx+')">丢弃</button></div>';
   }).join('');
 
-  // 管理员后台操作舱
   var adminPanelHtml = !S.isAdmin ? 
     '<div class="addbox" style="border-color:rgba(245,158,11,0.25)"><div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700">🔒 核心通道特权管理：输入密码进入</div><div class="setrow"><span class="setname">特权密码</span><input class="setinput" type="password" id="admin_pass" placeholder="输入特权暗号解锁"></div><button class="addbtn" style="background:#f59e0b" onclick="handleAdminLogin()">验证权限</button></div>' :
     '<div class="addbox" style="border-color:#34d399; background:rgba(52,211,153,0.02)"><div style="font-size:11px;color:#34d399;font-weight:700;margin-bottom:6px;">🛠️ 最高管理特权已开启</div>' +
     '<input class="setinput" id="p_name" placeholder="永久节点名（如：生产线Gemini）">' +
-    '<input class="setinput" id="p_url"  placeholder="API URL">' +
+    '<input class="setinput" id="p_url" placeholder="API URL (例如: https://...)">' +
+    '<input class="setinput" id="p_mname" placeholder="模型代码 (例如: gemini-2.0-flash)">' +
     '<input class="setinput" type="password" id="p_key" placeholder="API Key 密钥">' +
     '<select id="p_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="gemini">Gemini 原生</option><option value="openai">OpenAI 规范</option></select>' +
     '<button class="addbtn" style="background:#34d399" onclick="addPermanentNodeAdmin()">并入核心通道库</button>' +
