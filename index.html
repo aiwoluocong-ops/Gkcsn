@@ -360,7 +360,7 @@ function updateStage3D() {
   var stage = document.getElementById('dynamicStage3D'); if(!stage) return;
   var orbitHtml = ''; var allAis = getAllActiveAis(); var activeCount = allAis.length;
   if(activeCount === 0) {
-    stage.innerHTML = '<div class="wcat">🐱</div><div style="font-size:10px;color:#64748b;position:absolute;bottom:0">未挂载任何接口</div>';
+    stage.innerHTML = '<div class="wcat">🐱</div><div style="font-size:10px;color:#64748b;position:absolute;bottom:0">快加入你的神辅助</div>';
     return;
   }
   S.angle += 0.025;
@@ -382,7 +382,7 @@ function initAppStructure() {
     '<header><div class="logo">工控神录</div><div class="hdr"><button class="hbtn" onclick="document.getElementById(\'chatMain\').innerHTML=\'\';toast(\'面板已复位\')">清空</button><button class="hbtn" id="cfgBtn" onclick="toggleOverlay(true)">⚙ 管理面</button></div></header>' +
     '<div class="ctrlbar" id="ctrlBar"></div>' +
     '<main id="chatMain"><div class="welcome"><div class="stage3d" id="dynamicStage3D"></div><div class="wtitle">工控神录</div><div class="wdesc">开启你的成神路</div></div></main>' +
-    '<footer><div class="inputrow"><textarea id="mInp" rows="2" placeholder="投递突发工业故障..." oninput="S.inp=this.value"></textarea><button class="sendbtn" id="sendBtn" onclick="send()">CONVENE</button></div></footer>' +
+    '<footer><div class="inputrow"><textarea id="mInp" rows="2" placeholder="输入成神指令..." oninput="S.inp=this.value"></textarea><button class="sendbtn" id="sendBtn" onclick="send()">CONVENE</button></div></footer>' +
     '<div id="overlayContainer"></div>';
   renderCtrlBar();
 }
