@@ -95,7 +95,7 @@ textarea:focus{border-color:rgba(245,158,11,0.5)}
 <div class="container" id="app"></div>
 <script>
 // ====================================================================
-// 👑 永久核心 AI 接口列表（任何人点开网页直接能用，多端绝对不丢失）
+// 👑 永久核心 AI 接口列表
 // ====================================================================
 var PERMANENT_AIS = [];
 
@@ -107,7 +107,7 @@ var ROLES=[
 ];
 
 var PERSONA_CAT='你是《工控神录》AI副驾驶，代号"黑猫特工"。人设：根据用户改变，变成用户喜欢的。';
-var KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧门龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
+var KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧姆龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
 var extractKW = function(t){ return KWS.filter(function(k){ return t.indexOf(k) > -1; }); };
 
 // 🛠️ 设备独享本地临时席位
@@ -130,7 +130,7 @@ var S = {
 function getAllActiveAis() {
   var list = [];
   PERMANENT_AIS.forEach(function(ai){
-    if(ai.key && ai.key.length > 5) { list.push(Object.assign({}, ai, {isCore: true})); }
+    if(ai.key) { list.push(Object.assign({}, ai, {isCore: true})); }
   });
   S.localAis.forEach(function(ai){ list.push(Object.assign({}, ai, {isCore: false})); });
   return list;
@@ -153,7 +153,7 @@ function toggleRole(roleId) {
 }
 
 async function requestAi(ai, sys, msg) {
-  var fullUrl = ai.url;
+  var fullUrl = ai.url || '';
   if(ai.type === 'gemini' || fullUrl.indexOf('generativelanguage.googleapis.com') > -1) {
     if(fullUrl.indexOf('key=') === -1) fullUrl += (fullUrl.indexOf('?') > -1 ? '&' : '?') + 'key=' + ai.key;
     var r = await fetch(fullUrl, {
@@ -168,7 +168,6 @@ async function requestAi(ai, sys, msg) {
     var d = await r.json();
     return (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts && d.candidates[0].content.parts[0] && d.candidates[0].content.parts[0].text) || '解析失败';
   } else {
-    // 兼容所有标准 OpenAI 路由规范
     var r = await fetch(fullUrl, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ai.key },
       body: JSON.stringify({ model: ai.modelName || 'deepseek-chat', messages: [{role: 'system', content: sys}, {role: 'user', content: msg}], max_tokens: 1200, temperature: 0.4 })
@@ -297,7 +296,6 @@ async function send(){
   S.loading = false; document.getElementById('sendBtn').disabled = false; scrollEnd();
 }
 
-// 🎛️ 智能配置注入函数（不需要手动去找和打字补全）
 function fillTemplate(type, isCore) {
   var pfx = isCore ? 'p_' : 'l_';
   var nameEl = document.getElementById(pfx+'name');
@@ -323,6 +321,7 @@ function fillTemplate(type, isCore) {
   }
 }
 
+// 🎚️ 纯净透传逻辑：不阻拦、不拦截任何不完整的参数
 function processNodeInputs(pfx) {
   var name = document.getElementById(pfx+'name').value.trim();
   var url = document.getElementById(pfx+'url').value.trim();
@@ -330,32 +329,21 @@ function processNodeInputs(pfx) {
   var mName = document.getElementById(pfx+'mname').value.trim();
   var type = document.getElementById(pfx+'type').value;
 
-  if(!name || !key) { alert('【名称】和【密钥 KEY】是必填项！'); return null; }
+  // 只要名称不为空就可以成立
+  if(!name) { alert('请至少填写一个【节点名】用以识别显示！'); return null; }
   
-  // 核心逻辑：如果URL缺省，根据名称或常规常识自动智能补全官方路径
-  if(!url) {
-    if(name.toLowerCase().indexOf('deepseek') > -1) {
-      url = '[https://api.deepseek.com/v1/chat/completions](https://api.deepseek.com/v1/chat/completions)';
-      if(!mName) mName = 'deepseek-chat';
-      type = 'openai';
-    } else {
-      alert('无法识别该AI的默认URL，请尝试点击下方快捷模板一键生成配置！');
-      return null;
-    }
-  }
-  if(!mName) mName = 'default';
   return {name: name, url: url, key: key, modelName: mName, type: type};
 }
 
 function addPermanentNodeAdmin() {
   var data = processNodeInputs('p_'); if(!data) return;
-  PERMANENT_AIS.push(data); toast('👑 永久核心席位已就位，请点击下方按钮导出网页！'); renderOverlay舱();
+  PERMANENT_AIS.push(data); toast('👑 永久席位添加成功'); renderOverlay舱();
 }
 function deletePermanentNodeAdmin(idx) { PERMANENT_AIS.splice(idx, 1); toast('🗑️ 永久席位已移除'); renderOverlay舱(); }
 
 function addLocalNode() {
   var data = processNodeInputs('l_'); if(!data) return;
-  S.localAis.push(data); saveLocalAis(); toast('✅ 本地接口已存入本浏览器缓存'); renderOverlay舱();
+  S.localAis.push(data); saveLocalAis(); toast('✅ 本地节点已注入'); renderOverlay舱();
 }
 function deleteLocalNode(idx) { S.localAis.splice(idx, 1); saveLocalAis(); toast('🗑️ 本地席位已移除'); renderOverlay舱(); }
 
@@ -418,13 +406,13 @@ function renderOverlay舱() {
     '</div>';
 
   var adminPanelHtml = !S.isAdmin ? 
-    '<div class="addbox" style="border-color:rgba(245,158,11,0.25)"><div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700">🔒 核心通道特权管理：输入密码进入</div><div class="setrow"><span class="setname">特权密码</span><input class="setinput" type="password" id="admin_pass" placeholder="输入特权暗号解锁"></div><button class="addbtn" style="background:#f59e0b" onclick="handleAdminLogin()">验证权限</button></div>' :
+    '<div class="addbox" style="border-color:rgba(245,158,11,0.25)"><div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700">🔒 核心通道特权管理</div><div class="setrow"><span class="setname">特权密码</span><input class="setinput" type="password" id="admin_pass" placeholder="输入特权暗号解锁"></div><button class="addbtn" style="background:#f59e0b" onclick="handleAdminLogin()">验证权限</button></div>' :
     '<div class="addbox" style="border-color:#34d399; background:rgba(52,211,153,0.02)"><div style="font-size:11px;color:#34d399;font-weight:700;margin-bottom:6px;">🛠️ 最高管理特权已开启</div>' +
     '<div style="margin-bottom:6px;">' + quickTemplateCore + '</div>' +
-    '<input class="setinput" id="p_name" placeholder="节点名（如：DeepSeek）">' +
-    '<input class="setinput" id="p_key" type="password" placeholder="API Key 密钥（必填）">' +
-    '<input class="setinput" id="p_url" placeholder="API URL (非必填，留空则智能判定)">' +
-    '<input class="setinput" id="p_mname" placeholder="模型代码 (非必填)">' +
+    '<input class="setinput" id="p_name" placeholder="节点名（必填）">' +
+    '<input class="setinput" id="p_key" placeholder="API Key 密钥">' +
+    '<input class="setinput" id="p_url" placeholder="API URL (不填则留空透传)">' +
+    '<input class="setinput" id="p_mname" placeholder="模型代码 (不填则留空透传)">' +
     '<select id="p_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="openai">OpenAI 规范 / DeepSeek</option><option value="gemini">Gemini 原生</option></select>' +
     '<button class="addbtn" style="background:#34d399" onclick="addPermanentNodeAdmin()">并入核心通道库</button>' +
     '<button class="addbtn" style="background:#e11d48;color:#fff;margin-top:10px;" onclick="exportNewHtmlCode()">💾 立即打包下载最新网页文件</button></div>';
@@ -435,12 +423,12 @@ function renderOverlay舱() {
     adminPanelHtml +
     '<div class="settitle" style="margin-top:14px"> 当前设备本地部署席位 </div>' +
     '<div style="max-height:80px;overflow-y:auto;margin-bottom:6px;">' + localListHtml + '</div>' +
-    '<div class="addbox"><div style="font-size:11px;color:#38bdf8;margin-bottom:4px;font-weight:700">➕ 仅塞入当前设备缓存</div>' +
+    '<div class="addbox"><div style="font-size:11px;color:#38bdf8;margin-bottom:4px;font-weight:700">➕ 塞入当前设备缓存（零格式验证）</div>' +
     '<div style="margin-bottom:6px;">' + quickTemplateLocal + '</div>' +
-    '<input class="setinput" id="l_name" placeholder="节点名（如：我的DeepSeek）">' +
-    '<input class="setinput" id="l_key" type="password" placeholder="密钥 KEY（必填）">' +
-    '<input class="setinput" id="l_url" placeholder="API URL (不填会根据名字自动识别)">' +
-    '<input class="setinput" id="l_mname" placeholder="模型代码 (可不填)">' +
+    '<input class="setinput" id="l_name" placeholder="节点名（必填）">' +
+    '<input class="setinput" id="l_key" placeholder="密钥 KEY">' +
+    '<input class="setinput" id="l_url" placeholder="API URL (不填则留空透传)">' +
+    '<input class="setinput" id="l_mname" placeholder="模型代码 (不填则留空透传)">' +
     '<select id="l_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="openai">OpenAI 规范 / DeepSeek</option><option value="gemini">Gemini 原生</option></select><button class="addbtn" onclick="addLocalNode()">加入此设备</button></div>' +
     '<button class="setclose" onclick="toggleOverlay(false)">关闭控制舱</button></div></div>';
 }
