@@ -39,15 +39,21 @@ main{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:
 .msgrow.u{flex-direction:row-reverse}
 .av{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:1px solid #1e293b;background:#0f172a}
 .bbl{max-width:82%;padding:9px 12px;border-radius:10px;line-height:1.6;word-break:break-word;font-size:13px;-webkit-user-select:text;user-select:text}
-.bbl.u{background:#f59e0b;color:#020617;font-weight:600;border-radius:10px 10px 0 10px;cursor:pointer;position:relative}
+.bbl.u{background:#f59e0b;color:#020617;font-weight:600;border-radius:10px 10px 0 10px;position:relative}
 .bbl.ai{background:#0f172a;border:1px solid #1e293b;color:#e2e8f0;border-radius:10px 10px 10px 0}
 .bbl.deb{background:#09111e;border:1px dashed #38bdf8;color:#93c5fd;border-radius:10px}
-.bbl.er{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:10px 10px 10px 0}
+.bbl.er{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:10px 10px 10px 0;padding-bottom:12px}
 .mmeta{display:flex;gap:5px;align-items:center;margin-bottom:5px;flex-wrap:wrap}
 .mtag{font-size:10px;padding:1px 6px;border-radius:3px;font-family:Consolas,monospace;background:rgba(245,158,11,0.12);color:#f59e0b}
 .mtag.deb{background:rgba(56,189,248,0.15);color:#38bdf8}
 .mts{font-size:10px;color:#334155;margin-left:auto}
-.mtr{font-size:10px;color:#334155;text-align:right;margin-top:3px}
+.mtr{font-size:10px;color:#334155;text-align:right;margin-top:4px;display:flex;justify-content:space-between;align-items:center;font-weight:normal}
+
+/* 🔄 重试功能专用样式微调 */
+.retry-btn{color:#020617;background:rgba(255,255,255,0.45);padding:1px 6px;border-radius:4px;text-decoration:none;font-weight:900;font-size:10px;cursor:pointer;margin-left:8px;transition:background 0.2s}
+.retry-btn:hover{background:#ffffff}
+.err-retry-action{background:#ef4444;color:#fff;border:none;padding:4px 10px;border-radius:5px;font-size:11px;margin-top:8px;cursor:pointer;font-family:inherit;font-weight:bold;display:inline-block}
+.err-retry-action:hover{background:#dc2626}
 
 .codeblock{background:#020617;border:1px solid rgba(56,189,248,0.12);border-radius:7px;margin:7px 0;overflow:hidden}
 .codelang{padding:3px 10px;background:rgba(56,189,248,0.07);font-size:10px;color:#38bdf8;border-bottom:1px solid rgba(56,189,248,0.08);display:flex;justify-content:space-between;align-items:center}
@@ -235,6 +241,18 @@ function exportNewHtmlCode() {
   toast("💾 最新全开放多设备文件已生成并下载！");
 }
 
+// 🦾 一键重试引擎：防止特殊符号和代码摧毁 HTML 结构
+function exeRetry(b64Data) {
+  if(S.loading) return;
+  try {
+    var rawString = decodeURIComponent(escape(atob(b64Data)));
+    S.inp = rawString;
+    send();
+  } catch(err) {
+    toast('❌ 解析重试数据失败');
+  }
+}
+
 async function send(){
   var text = S.inp.trim();
   if(!text || S.loading) return;
@@ -249,8 +267,12 @@ async function send(){
   var welcomeBox = chatMain.querySelector('.welcome');
   if(welcomeBox) { chatMain.innerHTML = ''; }
 
+  // 🔒 加固：将发送的文本封装成 Base64 传递，彻底断绝 PLC 代码带来的单双引号冲突问题
+  var secureB64Text = btoa(unescape(encodeURIComponent(text)));
+
   var uRow = document.createElement('div'); uRow.className = 'msgrow u';
-  uRow.innerHTML = '<div class="bbl u">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '<div class="mtr">' + now2() + '</div></div>';
+  uRow.innerHTML = '<div class="bbl u">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + 
+    '<div class="mtr"><span>' + now2() + '</span><span class="retry-btn" onclick="exeRetry(\'' + secureB64Text + '\')">🔄 重试</span></div></div>';
   chatMain.appendChild(uRow);
 
   S.inp = ''; S.customTopic = '';
@@ -314,7 +336,8 @@ async function send(){
     chatMain.insertBefore(fRow, loadRow);
   } catch(e) {
     var errRow = document.createElement('div'); errRow.className = 'msgrow';
-    errRow.innerHTML = '<div class="av">⚠</div><div class="bbl er">❌ 通信中断: ' + e.message + '</div>';
+    // ⚡ 遇到中断报错时，错误气泡框直接渲染“一键原地重连复活按钮”
+    errRow.innerHTML = '<div class="av">⚠</div><div class="bbl er">❌ 通信中断: ' + e.message + '<br><button class="err-retry-action" onclick="exeRetry(\'' + secureB64Text + '\')">⚡ 重新连接</button></div>';
     chatMain.insertBefore(errRow, loadRow);
   }
 
