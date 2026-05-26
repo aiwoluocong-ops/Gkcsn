@@ -6,8 +6,8 @@
 <title>工控神录</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#090d16;color:#cbd5e1;font-family:Consolas,Monaco,'Courier New',monospace;font-size:13px;height:100vh;height:-webkit-fill-available;overflow:hidden;-webkit-user-select:none;user-select:none}
-.container{max-width:480px;margin:0 auto;height:100vh;display:flex;flex-direction:column;border-left:1px solid #1e293b;border-right:1px solid #1e293b;position:relative}
+body{background:#090d16;color:#cbd5e1;font-family:Consolas,Monaco,'Courier New',monospace;font-size:13px;height:100vh;overflow:hidden;-webkit-user-select:none;user-select:none}
+.container{max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column;border-left:1px solid #1e293b;border-right:1px solid #1e293b;position:relative}
 header{background:#0f172a;padding:12px 14px;border-bottom:1px solid rgba(245,158,11,0.25);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .logo{font-weight:900;font-size:15px;letter-spacing:2px;color:#f8fafc}
 .hdr{display:flex;gap:6px;align-items:center}
@@ -51,12 +51,6 @@ main{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:
 .mts{font-size:10px;color:#334155;margin-left:auto}
 .mtr{font-size:10px;color:#334155;text-align:right;margin-top:3px}
 
-.action-bar{display:flex;gap:10px;align-items:center;margin-top:6px;border-top:1px dashed rgba(255,255,255,0.04);padding-top:5px}
-.act-btn{background:none;border:none;color:#475569;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:3px;font-family:inherit}
-.act-btn:hover{color:#f59e0b}
-.act-btn.active{color:#ef4444}
-.act-btn.active-up{color:#10b981}
-
 .codeblock{background:#020617;border:1px solid rgba(56,189,248,0.12);border-radius:7px;margin:7px 0;overflow:hidden}
 .codelang{padding:3px 10px;background:rgba(56,189,248,0.07);font-size:10px;color:#38bdf8;border-bottom:1px solid rgba(56,189,248,0.08);display:flex;justify-content:space-between;align-items:center}
 .codecopy{background:none;border:none;color:#475569;cursor:pointer;font-size:10px;font-family:inherit;padding:0}
@@ -95,82 +89,78 @@ textarea:focus{border-color:rgba(245,158,11,0.5)}
 <body>
 <div class="container" id="app"></div>
 <script>
-// ==========================================
-// 🛡️ 核心区：管理员固化永久席位 (换设备永不丢失)
-// ==========================================
-// 管理员可以直接在这里无缝填入常用主路由，无论如何清理缓存或更换终端，这几个AI永远稳坐后台！
-const GLOBAL_CORE_AIS = [
-  {
-    name: '永久-Gemini', 
-    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=', 
-    key: '在这里直接填入你的核心Key', 
-    modelName: 'gemini-2.0-flash', 
-    type: 'gemini',
-    isCore: true // 核心标识
-  },
-  {
-    name: '永久-DeepSeek', 
-    url: 'https://api.deepseek.com/v1/chat/completions', 
-    key: '在这里直接填入你的核心Key', 
-    modelName: 'deepseek-chat', 
-    type: 'openai',
-    isCore: true
-  }
+// ===================================================
+// 🍎 预置出厂固化席位（若本地没有管理员存储，则初始化此默认项）
+// ===================================================
+var FACTORY_AIS = [
+  {name:'永久-Gemini', url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=', key:'', modelName:'gemini-2.0-flash', type:'gemini', isCore:true}
 ];
 
-const ROLES=[
+var ROLES=[
   {id:'fault',icon:'⚡',name:'故障诊断',prompt:'核心任务：工控故障诊断。输出：①最可能原因（按概率降序）②具体排查步骤③寄存器/参数地址。'},
   {id:'plc',icon:'💻',name:'PLC编程',prompt:'核心任务：PLC编程。直接给出能粘贴使用的代码，注明平台（博途SCL/三菱ST/欧姆龙ST），必须有中文注释。'},
   {id:'robot',icon:'🦾',name:'机器人',prompt:'核心任务：工业机器人（FANUC/安川/川崎/ABB/KUKA）。给出具体操作路径、菜单名称、参数值。'},
   {id:'comm',icon:'🔗',name:'通信调试',prompt:'核心任务：工业通信（Profinet/EtherCAT/Modbus）。给出具体配置参数、IP/站号设置。'}
 ];
 
-const PERSONA_CAT='你是《工控神录》AI副驾驶，代号"黑猫特工"。人设：高冷理性、一针见血。核心要求：每次回答必须极其精炼，严禁超过250字，严禁说任何客套废话！';
-const KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧姆龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
-const extractKW=function(t){ return KWS.filter(function(k){ return t.indexOf(k) > -1; }); };
+var PERSONA_CAT='你是《工控神录》AI副驾驶，代号"黑猫特工"。人设：高冷理性、一针见血。核心要求：每次回答必须极其精炼，严禁超过250字，严禁说任何客套废话！';
+var KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧姆龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
+var extractKW = function(t){ return KWS.filter(function(k){ return t.indexOf(k) > -1; }); };
 
-// 兼容性Local数据抓取
-let savedAis = [];
+// 🛡️ 轨道一：读取管理员专属“永存”席位 (通过独立高级混淆链隔离)
+var adminStoredAis = [];
 try {
-  var localData = localStorage.getItem('gkcsn_custom_ais');
-  if(localData) savedAis = JSON.parse(localData);
-} catch(e) { savedAis = []; }
-if(!Array.isArray(savedAis)) savedAis = [];
+  var localCore = localStorage.getItem('gkcsn_core_permanent_ais');
+  if(localCore) {
+    adminStoredAis = JSON.parse(localCore);
+  } else {
+    adminStoredAis = FACTORY_AIS;
+    localStorage.setItem('gkcsn_core_permanent_ais', JSON.stringify(adminStoredAis));
+  }
+} catch(e) { adminStoredAis = FACTORY_AIS; }
 
-let savedMems = [];
+// 🎛️ 轨道二：读取本地/设备临时加入的席位
+var temporaryAis = [];
+try {
+  var localTemp = localStorage.getItem('gkcsn_custom_ais');
+  if(localTemp) temporaryAis = JSON.parse(localTemp);
+} catch(e) { temporaryAis = []; }
+
+var savedMems = [];
 try {
   var localMems = localStorage.getItem('gkcsn_m');
   if(localMems) savedMems = JSON.parse(localMems);
 } catch(e) { savedMems = []; }
-if(!Array.isArray(savedMems)) savedMems = [];
 
-// 全局运行状态机
-let S = {
+// 核心系统状态机
+var S = {
   activeRoleIds: ['fault'], 
   customTopic: '', 
   msgs: [],
   loading: false,
   showSet: false,
-  isAdmin: false, // 鉴权状态标志位
+  isAdmin: false, // 是否登录管理员状态
   toast: '',
   toastTimer: null,
   inp: '',
-  customAis: savedAis,
+  coreAis: adminStoredAis,  // 永久席位阵列
+  customAis: temporaryAis, // 临时席位阵列
   mems: savedMems,
   angle: 0,
   currentSpeaker: '',
   feedbackStates: {} 
 };
 
-// 合并核心固化AI和用户临时添加的AI
+// 安全融合两路API通道，规避苹果可选链报错
 function getAllAis() {
-  return GLOBAL_CORE_AIS.concat(S.customAis);
+  return S.coreAis.concat(S.customAis);
 }
 
-const saveCustomAis = function() { localStorage.setItem('gkcsn_custom_ais', JSON.stringify(S.customAis)); };
-const saveMems = function() { localStorage.setItem('gkcsn_m', JSON.stringify(S.mems)); };
-const now2 = function() { return new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'}); };
-const nowF = function() { return new Date().toLocaleString('zh-CN', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}); };
+var saveCoreAis = function() { localStorage.setItem('gkcsn_core_permanent_ais', JSON.stringify(S.coreAis)); };
+var saveCustomAis = function() { localStorage.setItem('gkcsn_custom_ais', JSON.stringify(S.customAis)); };
+var saveMems = function() { localStorage.setItem('gkcsn_m', JSON.stringify(S.mems)); };
+var now2 = function() { return new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'}); };
+var nowF = function() { return new Date().toLocaleString('zh-CN', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}); };
 
 function toast(msg){
   clearTimeout(S.toastTimer); S.toast=msg; render();
@@ -184,7 +174,7 @@ function toggleRole(roleId) {
 }
 
 async function requestAi(ai, sys, hist, msg) {
-  if(!ai.key || ai.key.indexOf('填入') > -1) throw new Error('未配置 [' + ai.name + '] 的有效 API Key！');
+  if(!ai.key) throw new Error('未检测到 [' + ai.name + '] 的有效 API Key！');
   if(ai.type === 'gemini' || ai.url.indexOf('generativelanguage.googleapis.com') > -1) {
     var contents = [];
     hist.forEach(function(m) { contents.push({role: m.role==='user'?'user':'model', parts:[{text: m.content}]}); });
@@ -201,7 +191,7 @@ async function requestAi(ai, sys, hist, msg) {
     });
     if(!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error((e && e.error && e.error.message) || 'HTTP ' + r.status); }
     var d = await r.json();
-    return (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts && d.candidates[0].content.parts[0] && d.candidates[0].content.parts[0].text) || '（无法解析Gemini返回内容）';
+    return (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts && d.candidates[0].content.parts[0] && d.candidates[0].content.parts[0].text) || '（无法解析Gemini）';
   } else {
     var messages = [{role: 'system', content: sys}];
     hist.forEach(function(m) { messages.push({role: m.role==='user'?'user':'assistant', content: m.content}); });
@@ -213,7 +203,7 @@ async function requestAi(ai, sys, hist, msg) {
     });
     if(!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error((e && e.error && e.error.message) || 'HTTP ' + r.status); }
     var d = await r.json();
-    return (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '（无法解析OpenAI返回内容）';
+    return (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '（无法解析OpenAI）';
   }
 }
 
@@ -225,15 +215,13 @@ function buildSys(q, activeTopic, activeRoles) {
       var target = ROLES.find(function(r){ return r.id === rId; });
       if(target) sys += '• [' + target.name + '专家模块]：' + target.prompt + '\n';
     });
-  } else {
-    sys += '当前未锁定特定路线，全功能自由发挥。';
   }
   if(activeTopic && activeTopic.trim()){
-    sys += '\n\n【🔥 核心议题绝对主导方向】：必须完全无条件倾向于研究与运用：' + activeTopic.trim() + '。';
+    sys += '\n\n【🔥 核心议题绝对主导方向】：优先考虑运用：' + activeTopic.trim() + '。';
   }
   var rel = S.mems.filter(function(m) { return extractKW(q).some(function(k) { return m.text.indexOf(k) > -1; }); }).slice(0,3);
   if(rel.length > 0) {
-    sys += '\n\n【历史经验会议底账】\n';
+    sys += '\n\n【历史会议底账】\n';
     rel.forEach(function(m) { sys += '• [' + m.time + '] ' + m.text + '\n'; });
   }
   return sys;
@@ -258,22 +246,14 @@ function cpCode(btn, b64){
 
 function scrollEnd(){ setTimeout(function() { var m = document.querySelector('main'); if(m) m.scrollTop = m.scrollHeight; }, 60); }
 
-function triggerReplay(text, boundTopic, boundRoles) {
-  if (S.loading) return;
-  S.inp = text;
-  S.customTopic = boundTopic || ''; 
-  try { S.activeRoleIds = boundRoles ? JSON.parse(boundRoles) : ['fault']; } catch(e) { S.activeRoleIds = ['fault']; }
-  send();
-}
-
 function handleAdminLogin() {
   var u = document.getElementById('admin_user').value.trim();
   var p = document.getElementById('admin_pass').value.trim();
   if(u === 'gks' && p === 'gkslhdw666') {
     S.isAdmin = true;
-    toast('🔓 管理员身份验证通过，永久接口控制面板开放');
+    toast('🔓 根控制舱解密成功，永久存储管理权已下放');
   } else {
-    alert('账号或密码错误，拒绝签发高级权限！');
+    alert('账号或暗号不正确！');
   }
   render();
 }
@@ -283,29 +263,22 @@ async function send(){
   if(!text || S.loading) return;
 
   var allAvailableAis = getAllAis();
-  var activeAis = allAvailableAis.filter(function(ai) { return ai.key && ai.key.indexOf('填入') === -1; });
+  var activeAis = allAvailableAis.filter(function(ai) { return ai.key && ai.key.length > 0; });
   if(activeAis.length === 0) {
-    toast('⚠️ 未检测到有效 API 接口！请让管理员固化或在管理面输入。');
+    toast('⚠️ 无任何就位API！请在管理面输入。');
     return;
   }
 
   var currentTurnTopic = S.customTopic ? S.customTopic.trim() : '';
   var currentTurnRoles = S.activeRoleIds.slice();
 
-  S.msgs.push({
-    role: 'user', content: text, ts: now2(), id: Date.now(), 
-    boundTopic: currentTurnTopic, boundRoles: JSON.stringify(currentTurnRoles)
-  });
-  
+  S.msgs.push({ role: 'user', content: text, ts: now2(), id: Date.now(), boundTopic: currentTurnTopic, boundRoles: JSON.stringify(currentTurnRoles) });
   S.inp = ''; S.customTopic = '';
   var ta = document.getElementById('mInp'); if(ta) ta.value = '';
   var ti = document.getElementById('tInp'); if(ti) ti.value = '';
   render(); scrollEnd();
 
   var roundTableLog = '【主诉问题】' + text + '\n';
-  if(currentTurnTopic) roundTableLog += '【议题主导方向】' + currentTurnTopic + '\n';
-  roundTableLog += '\n';
-
   var finalSolution = "";
   var debateRound = 1;
   var maxRounds = 2;
@@ -319,13 +292,7 @@ async function send(){
         S.currentSpeaker = currentAi.name + ' (R' + debateRound + ')';
         render(); scrollEnd();
 
-        var promptForAi = '共享资料：\n' + roundTableLog + '\n';
-        if (debateRound === 1 && i === 0) {
-          promptForAi += '请给出独立系统诊断及解决方案。';
-        } else {
-          promptForAi += '请审阅上方其它节点的方案。完全同意则回复“【完全同意，达成共识】”；若有补足修正请直接指出。';
-        }
-
+        var promptForAi = '共享资料：\n' + roundTableLog + '\n审阅其它节点方案，赞同则回复“【完全同意，达成共识】”，否则请给出补足。';
         var reply = await requestAi(currentAi, buildSys(text, currentTurnTopic, currentTurnRoles), [], promptForAi);
         var isAgree = reply.indexOf('完全同意') > -1 || reply.indexOf('达成共识') > -1;
         if(isAgree) roundAgreements++;
@@ -334,7 +301,7 @@ async function send(){
         S.msgs.push({
           role: 'assistant', isDebate: true, content: reply,
           aiName: currentAi.name + ' [R' + debateRound + ']',
-          roleName: isAgree ? '🟢 赞同共识' : '⚡ 审议修正',
+          roleName: isAgree ? '🟢 赞同' : '⚡ 修正意见',
           ts: now2(), id: Date.now() + Math.random()
         });
         render(); scrollEnd();
@@ -346,40 +313,62 @@ async function send(){
     var msgId = Date.now();
     var kw = extractKW(text + finalSolution);
     S.msgs.push({
-      role: 'assistant', isDebate: false,
-      content: '🏆 【圆桌联合会议终审决议】\n\n' + finalSolution,
-      aiName: '圆桌联合会议', roleName: '最终方案', ts: now2(), kw: kw, id: msgId,
-      rawTxt: finalSolution, rawOrigUserTxt: text, boundTopic: currentTurnTopic, boundRoles: JSON.stringify(currentTurnRoles)
+      role: 'assistant', isDebate: false, content: '🏆 【圆桌最终收敛决议】\n\n' + finalSolution,
+      aiName: '圆桌联合会议', roleName: '最终执行方案', ts: now2(), kw: kw, id: msgId
     });
-
-    S.mems.unshift({ id: Date.now(), time: nowF(), text: '[共识] 问:' + text.slice(0,12) + '… 结案:' + finalSolution.slice(0,30) + '…', kw: kw });
-    S.mems = S.mems.slice(0, 999);
+    S.mems.unshift({ id: Date.now(), time: nowF(), text: '[结案] 问:' + text.slice(0,12) + '… 答:' + finalSolution.slice(0,30) + '…', kw: kw });
     saveMems();
   } catch(e) {
-    S.msgs.push({role: 'error', content: '❌ 圆桌通信中断: ' + e.message, ts: now2(), id: Date.now()});
+    S.msgs.push({role: 'error', content: '❌ 节点异常: ' + e.message, ts: now2(), id: Date.now()});
   }
 
   S.loading = false; S.currentSpeaker = '';
   render(); scrollEnd();
 }
 
-function addNewAi() {
+// 🎛️ 添加临时席位 (设备级，随缓存清理)
+function addTemporaryNode() {
   var name = document.getElementById('new_name').value.trim();
   var url = document.getElementById('new_url').value.trim();
   var key = document.getElementById('new_key').value.trim();
   var mName = document.getElementById('new_mname').value.trim();
   var type = document.getElementById('new_type').value;
-  if(!name || !url || !key) { alert('请将必填信息填写完整！'); return; }
-  S.customAis.push({ name: name, url: url, key: key, modelName: mName, type: type });
+  if(!name || !url || !key) { alert('请填写完整！'); return; }
+  S.customAis.push({ name: name, url: url, key: key, modelName: mName, type: type, isCore: false });
   saveCustomAis();
-  toast('✅ 成功加入设备级临时席位');
+  toast('✅ 已并入临时接入区');
   render();
 }
 
-function deleteAi(idx, e) {
+// 👑 管理员添加永久席位 (写入隔离永存层)
+function addPermanentNode() {
+  var name = document.getElementById('core_name').value.trim();
+  var url = document.getElementById('core_url').value.trim();
+  var key = document.getElementById('core_key').value.trim();
+  var mName = document.getElementById('core_mname').value.trim();
+  var type = document.getElementById('core_type').value;
+  if(!name || !url || !key) { alert('高级核心接口信息不可为空！'); return; }
+  S.coreAis.push({ name: name, url: url, key: key, modelName: mName, type: type, isCore: true });
+  saveCoreAis();
+  toast('👑 永久核心席位已强行加固入库！');
+  render();
+}
+
+// 移除永久席位
+function deleteCoreAi(idx, e) {
+  e.stopPropagation();
+  S.coreAis.splice(idx, 1);
+  saveCoreAis();
+  toast('🗑️ 永久席位已强行注销');
+  render();
+}
+
+// 移除临时席位
+function deleteCustomAi(idx, e) {
   e.stopPropagation();
   S.customAis.splice(idx, 1);
   saveCustomAis();
+  toast('🗑️ 临时席位已丢弃');
   render();
 }
 
@@ -399,42 +388,25 @@ function updateStage3D() {
     var x = Math.cos(personalAngle) * rx; var y = Math.sin(personalAngle) * ry;
     var sinNorm = Math.sin(personalAngle);
     var scale = 0.72 + (sinNorm + 1) * 0.23; 
-    var opacity = (ai.key && ai.key.indexOf('填入') === -1) ? (0.5 + (sinNorm + 1) * 0.3) : 0.2; 
+    var opacity = ai.key ? (0.5 + (sinNorm + 1) * 0.3) : 0.2; 
     var zIndex = Math.floor((sinNorm + 1) * 10);
 
-    orbitHtml += '<div class="orbit-ai" style="transform: translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + '); opacity: ' + opacity + '; z-index: ' + zIndex + '; ' + (ai.isCore?'border-color:#34d399;':'') + '">' +
+    orbitHtml += '<div class="orbit-ai" style="transform: translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + '); opacity: ' + opacity + '; z-index: ' + zIndex + '; ' + (ai.isCore?'border-color:#34d399;color:#34d399;':'') + '">' +
       (ai.isCore ? '👑 ' : '⚡ ') + ai.name +
     '</div>';
   });
   stage.innerHTML = '<div class="wcat ' + (S.loading?'godmode':'') + '">🐱</div>' + orbitHtml;
 }
 
-let touchTimer;
-function onTouchStart(txt, topic, rolesJson) { touchTimer = setTimeout(function() { triggerReplay(txt, topic, rolesJson); toast("🔄 已唤醒此轮会议设定"); }, 700); }
-function onTouchEnd() { clearTimeout(touchTimer); }
-
 function render(){
   var msgsHtml = '';
   if(S.msgs.length === 0) {
-    msgsHtml = '<div class="welcome"><div class="stage3d" id="dynamicStage3D"></div><div class="wtitle">工控神录</div><div class="wdesc">核心架构极致兼容 · 永久/临时双轨制API圆桌系统</div></div>';
+    msgsHtml = '<div class="welcome"><div class="stage3d" id="dynamicStage3D"></div><div class="wtitle">工控神录</div><div class="wdesc">苹果Safari专属优化重构版 · 双轨API动态控制系统</div></div>';
   } else {
     msgsHtml = S.msgs.map(function(m) {
       if(m.role === 'user') {
         var escaped = m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        var tTopic = m.boundTopic ? m.boundTopic.replace(/'/g, "\\'") : '';
-        var rJson = m.boundRoles ? m.boundRoles.replace(/'/g, "\\'") : '[]';
-        var metaDesc = [];
-        if(m.boundTopic) metaDesc.push('🧭 ' + m.boundTopic);
-        if(m.boundRoles) {
-          try {
-            var arr = JSON.parse(m.boundRoles);
-            if(arr.length > 0) {
-              var names = arr.map(function(id) { var r = ROLES.find(function(x){return x.id===id;}); return r ? r.name : id; });
-              metaDesc.push('🦾 ' + names.join('+'));
-            }
-          } catch(e){}
-        }
-        return '<div class="msgrow u"><div class="bbl u" ontouchstart="onTouchStart(\''+escaped+'\',\''+tTopic+'\',\''+rJson+'\')" ontouchend="onTouchEnd()">' + escaped + (metaDesc.length > 0 ? '<div style="font-size:9px;color:rgba(0,0,0,0.4);margin-top:4px;font-weight:normal;line-height:1.2">' + metaDesc.join(' | ') + '</div>' : '') + '<div class="mtr">' + m.ts + '</div></div></div>';
+        return '<div class="msgrow u"><div class="bbl u">' + escaped + '<div class="mtr">' + m.ts + '</div></div></div>';
       }
       if(m.role === 'error') return '<div class="msgrow"><div class="av">⚠</div><div class="bbl er">' + m.content + '</div></div>';
       var kwtags = (m.kw && m.kw.length > 0) ? '<div class="memtag">🧠 共识 · ' + m.kw.slice(0,3).join(' · ') + '</div>' : '';
@@ -445,48 +417,58 @@ function render(){
     }
   }
 
-  // 管理控制面视图逻辑 (区分管理员权限)
-  var adminPanelHtml = '';
+  // 🛡️ 核心改造：真正的管理员控制面
+  var adminSectionHtml = '';
   if(!S.isAdmin) {
-    adminPanelHtml = '<div class="addbox"><div style="font-size:11px;color:#ef4444;margin-bottom:6px;font-weight:700">🔒 锁定区：管理员永久接口舱</div>' +
-      '<div class="setrow"><span class="setname">管理员账号</span><input class="setinput" id="admin_user" value="gks"></div>' +
-      '<div class="setrow"><span class="setname">专属密码</span><input class="setinput" type="password" id="admin_pass" placeholder="请输入管理员密码"></div>' +
+    adminSectionHtml = '<div class="addbox" style="border-color:rgba(239,68,68,0.3)"><div style="font-size:11px;color:#ef4444;margin-bottom:6px;font-weight:700">🔒 锁定区：管理员永久存在API舱</div>' +
+      '<div class="setrow"><span class="setname">管理账户</span><input class="setinput" id="admin_user" value="gks"></div>' +
+      '<div class="setrow"><span class="setname">特权密码</span><input class="setinput" type="password" id="admin_pass" placeholder="输入特权密码"></div>' +
       '<button class="addbtn" style="background:#f59e0b" onclick="handleAdminLogin()">验证登录管理员</button></div>';
   } else {
-    adminPanelHtml = '<div class="addbox" style="border-color:#34d399;"><div style="font-size:11px;color:#34d399;margin-bottom:6px;font-weight:700">🔓 管理员已就位 (代码永久席位提示)</div>' +
-      '<div style="font-size:11px;color:#64748b;line-height:1.5;margin-bottom:6px">如需无条件永久绑定AI，请长久保存此文件，并直接使用编辑器修改代码开头的 <b>GLOBAL_CORE_AIS</b> 常量区数组。不论如何换设备清理缓存均永不失效！</div></div>';
+    adminSectionHtml = '<div class="addbox" style="border-color:#34d399; background:rgba(52,211,153,0.02)">' +
+      '<div style="font-size:11px;color:#34d399;margin-bottom:6px;font-weight:700">🔓 掌控中：永久存在API席位配置区 (后台永存)</div>' +
+      '<input class="setinput" id="core_name" placeholder="永久节点别称，如：固化Gemini" style="margin-bottom:4px;display:block;width:100%">' +
+      '<input class="setinput" id="core_url" placeholder="API EndPoint URL 接口端点" style="margin-bottom:4px;display:block;width:100%">' +
+      '<input class="setinput" id="core_mname" placeholder="模型代码,如 gemini-2.0-flash" style="margin-bottom:4px;display:block;width:100%">' +
+      '<input class="setinput" type="password" id="core_key" placeholder="API KEY 密钥密码" style="margin-bottom:4px;display:block;width:100%">' +
+      '<select id="core_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%;margin-bottom:6px"><option value="gemini">Gemini 原生协议</option><option value="openai">OpenAI 协议规范</option></select>' +
+      '<button class="addbtn" style="background:#34d399; color:#020617" onclick="addPermanentNode()">强行并入永久席位</button></div>';
   }
 
   var setHtml = S.showSet ? '<div class="overlay" id="setOverlay" onclick="if(event.target===this){S.showSet=false;render();}"><div class="setbox">' +
-    '<div class="settitle">🧠 会议共识历史库 ('+S.mems.length+'/999)</div>' +
-    '<div style="max-height:100px;overflow-y:auto;background:rgba(0,0,0,0.2);padding:6px;border-radius:6px;font-size:11px">' +
-      (S.mems.length===0?'暂无纪要':S.mems.map(function(m){return '<div style="margin-bottom:3px;color:#94a3b8">'+m.text+'</div>';}).join('')) +
+    '<div class="settitle">👑 永久席位账目 (管理员可完全操控)</div>' +
+    '<div style="max-height:80px;overflow-y:auto;margin-bottom:10px;">' +
+      S.coreAis.map(function(ai, idx){ 
+        return '<div class="setrow" style="background:rgba(52,211,153,0.04);padding:4px;border-radius:4px;border:1px solid rgba(52,211,153,0.2)">' +
+          '<div style="font-size:11px;color:#34d399;flex:1;overflow:hidden;text-overflow:ellipsis">👑 '+ai.name+'</div>' +
+          (S.isAdmin ? '<button class="setdel" onclick="deleteCoreAi('+idx+', event)">销毁</button>' : '<span style="font-size:9px;color:#475569">受保护</span>') +
+        '</div>'; 
+      }).join('') +
     '</div>' +
-    adminPanelHtml +
-    '<div class="settitle" style="margin-top:14px">⚙️ 本地/临时席位管理</div>' +
-    '<div style="max-height:100px;overflow-y:auto;margin-bottom:6px;">' +
-      GLOBAL_CORE_AIS.map(function(ai){ return '<div class="setrow" style="background:rgba(52,211,153,0.03);padding:4px;border-radius:4px;border:1px solid rgba(52,211,153,0.2)"><div style="font-size:11px;color:#34d399;flex:1">👑 '+ai.name+' (永久有效)</div></div>'; }).join('') +
-      S.customAis.map(function(ai, idx){ return '<div class="setrow" style="background:rgba(255,255,255,0.02);padding:4px;border-radius:4px;border:1px solid #1e293b"><div style="font-size:11px;color:#38bdf8;flex:1">⚡ '+ai.name+'</div><button class="setdel" onclick="deleteAi('+idx+', event)">丢弃</button></div>'; }).join('') +
+    adminSectionHtml +
+    '<div class="settitle" style="margin-top:14px">⚡ 本地/临时设备席位 (随缓存清理)</div>' +
+    '<div style="max-height:80px;overflow-y:auto;margin-bottom:6px;">' +
+      (S.customAis.length===0?'<div style="font-size:10px;color:#475569">暂无临时接口</div>':S.customAis.map(function(ai, idx){ return '<div class="setrow" style="background:rgba(255,255,255,0.02);padding:4px;border-radius:4px;border:1px solid #1e293b"><div style="font-size:11px;color:#38bdf8;flex:1">⚡ '+ai.name+'</div><button class="setdel" onclick="deleteCustomAi('+idx+', event)">丢弃</button></div>'; }).join('')) +
     '</div>' +
-    '<div class="addbox"><div style="font-size:11px;color:#38bdf8;margin-bottom:4px;font-weight:700">➕ 临时接入新节点</div>' +
-    '<input class="setinput" id="new_name" placeholder="节点名" style="margin-bottom:4px;display:block;width:100%">' +
-    '<input class="setinput" id="new_url" placeholder="API EndPoint URL" style="margin-bottom:4px;display:block;width:100%">' +
-    '<input class="setinput" id="new_mname" placeholder="模型代码,如 deepseek-chat" style="margin-bottom:4px;display:block;width:100%">' +
-    '<input class="setinput" type="password" id="new_key" placeholder="API KEY 密钥" style="margin-bottom:4px;display:block;width:100%">' +
+    '<div class="addbox"><div style="font-size:11px;color:#38bdf8;margin-bottom:4px;font-weight:700">➕ 接入本地临时轻量节点</div>' +
+    '<input class="setinput" id="new_name" placeholder="临时节点名" style="margin-bottom:4px;display:block;width:100%">' +
+    '<input class="setinput" id="new_url" placeholder="API URL" style="margin-bottom:4px;display:block;width:100%">' +
+    '<input class="setinput" id="new_mname" placeholder="模型代码" style="margin-bottom:4px;display:block;width:100%">' +
+    '<input class="setinput" type="password" id="new_key" placeholder="密钥 KEY" style="margin-bottom:4px;display:block;width:100%">' +
     '<select id="new_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="openai">OpenAI 规范</option><option value="gemini">Gemini 原生</option></select>' +
-    '<button class="addbtn" onclick="addNewAi()">允许入席</button></div>' +
+    '<button class="addbtn" onclick="addTemporaryNode()">临时入席</button></div>' +
     '<button class="setclose" onclick="S.showSet=false;render()">关闭控制舱</button></div></div>' : '';
 
   var oldVal = (document.getElementById('mInp') && document.getElementById('mInp').value) || S.inp;
   var oldTopic = (document.getElementById('tInp') && document.getElementById('tInp').value) || S.customTopic;
 
   document.getElementById('app').innerHTML = (S.toast ? '<div class="toast">' + S.toast + '</div>' : '') +
-    '<header><div class="logo">工控神录</div><div class="hdr"><button class="hbtn" onclick="S.msgs=[];toast(\'会议清理成功\')">清空</button><button class="hbtn '+(S.showSet?'on':'')+'" onclick="S.showSet=!S.showSet;render()">⚙ 管理面</button></div></header>' +
+    '<header><div class="logo">工控神录</div><div class="hdr"><button class="hbtn" onclick="S.msgs=[];toast(\'面板已洗牌复位\')">清空</button><button class="hbtn '+(S.showSet?'on':'')+'" onclick="S.showSet=!S.showSet;render()">⚙ 管理面</button></div></header>' +
     '<div class="ctrlbar"><div class="topic-wrapper"><input id="tInp" class="topic-input" type="text" placeholder="✍️ 主导议题..." oninput="S.customTopic=this.value">' +
-    '<button class="topic-clear" onclick="S.customTopic=\'\';document.getElementById(\'tInp\').value=\'\';toast(\'已复位\');render();">❌</button></div><div class="sep"></div>' +
+    '<button class="topic-clear" onclick="S.customTopic=\'\';document.getElementById(\'tInp').value=\'\';toast(\'主导释放\');render();">❌</button></div><div class="sep"></div>' +
     ROLES.map(function(r) { return '<button class="chip '+(S.activeRoleIds.indexOf(r.id)>-1?'cg':'')+'" onclick="toggleRole(\''+r.id+'\')">' + r.icon + ' ' + r.name + '</button>'; }).join('') +
     '</div><main id="chatMain">' + msgsHtml + '<div id="end"></div></main>' +
-    '<footer><div class="inputrow"><textarea id="mInp" rows="2" placeholder="输入突发工业故障..." oninput="S.inp=this.value"></textarea>' +
+    '<footer><div class="inputrow"><textarea id="mInp" rows="2" placeholder="投递突发工业故障..." oninput="S.inp=this.value"></textarea>' +
     '<button class="sendbtn" onclick="send()" '+(S.loading?'disabled':'')+'>'+(S.loading?'⏳':'CONVENE')+'</button></div></footer>' + setHtml;
 
   var ta = document.getElementById('mInp'); if(ta) { ta.value = oldVal; }
