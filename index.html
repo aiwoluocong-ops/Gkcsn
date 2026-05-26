@@ -16,11 +16,17 @@ header{background:#0f172a;padding:12px 14px;border-bottom:1px solid rgba(245,158
 .hbtn.on{border-color:#38bdf8;color:#38bdf8}
 .ctrlbar{background:#0a0f1a;padding:7px 12px;border-bottom:1px solid #1e293b;display:flex;gap:5px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;align-items:center}
 .ctrlbar::-webkit-scrollbar{display:none}
-.chip{padding:3px 10px;border:1px solid #1e293b;border-radius:12px;font-size:11px;color:#475569;cursor:pointer;white-space:nowrap;background:none;font-family:inherit;transition:all .18s}
+
+/* 新增：主导议题组合输入框样式 */
+.topic-wrapper{display:flex;align-items:center;background:#0f172a;border:1px dashed #38bdf8;border-radius:10px;padding:0 4px 0 0;flex-shrink:0}
+.topic-input{background:none;border:none;color:#38bdf8;padding:4px 6px;font-size:11px;font-family:inherit;outline:none;width:110px}
+.topic-input::placeholder{color:#1e293b}
+.topic-clear{background:none;border:none;color:#475569;cursor:pointer;font-size:10px;padding:2px;display:flex;align-items:center;justify-content:center;transition:color 0.2s}
+.topic-clear:hover{color:#ef4444}
+
+.chip{padding:4px 10px;border:1px solid #1e293b;border-radius:12px;font-size:11px;color:#475569;cursor:pointer;white-space:nowrap;background:none;font-family:inherit;transition:all .18s}
 .chip:hover{border-color:#334155;color:#94a3b8}
 .chip.cg{border-color:#38bdf8;color:#38bdf8;background:rgba(56,189,248,0.07)}
-.topic-input{background:#0f172a;border:1px dashed #38bdf8;color:#38bdf8;padding:2px 8px;border-radius:10px;font-size:11px;font-family:inherit;outline:none;width:110px;flex-shrink:0}
-.topic-input::placeholder{color:#1e293b}
 .sep{width:1px;height:16px;background:#1e293b;flex-shrink:0;margin:0 3px;align-self:center}
 main{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:#1e293b transparent}
 main::-webkit-scrollbar{width:3px}
@@ -131,7 +137,7 @@ try {
 if(!Array.isArray(savedMems)) savedMems = [];
 
 let S = {
-  role: ROLES[0],
+  activeRoleIds: ['fault'], // 改为数组架构，默认开启故障诊断芯片
   customTopic: '', 
   msgs: [],
   loading: false,
@@ -155,6 +161,17 @@ const nowF = () => new Date().toLocaleString('zh-CN', {month:'2-digit', day:'2-d
 function toast(msg){
   clearTimeout(S.toastTimer); S.toast=msg; render();
   S.toastTimer=setTimeout(()=>{S.toast=''; render();},2200);
+}
+
+// 切换芯片选择：支持多选、反选、全部取消（自由发挥模式）
+function toggleRole(roleId) {
+  const idx = S.activeRoleIds.indexOf(roleId);
+  if (idx > -1) {
+    S.activeRoleIds.splice(idx, 1); // 再次点击则取消亮起
+  } else {
+    S.activeRoleIds.push(roleId); // 点击未亮起的则加入数组
+  }
+  render();
 }
 
 async function requestAi(ai, sys, hist, msg) {
@@ -191,12 +208,22 @@ async function requestAi(ai, sys, hist, msg) {
   }
 }
 
-function buildSys(q){
-  let sys = PERSONA_CAT + '\n\n' + S.role.prompt;
+function buildSys(q, activeTopic, activeRoles) {
+  let sys = PERSONA_CAT + '\n\n';
   
-  // 仅在输入了主导议题时才强力干预，没输入则直接跳过，让AI自由发挥
-  if(S.customTopic && S.customTopic.trim()){
-    sys += `\n\n【🔥 核心议题绝对主导方向】：必须完全无条件倾向于研究、运用、对齐此工具或方法论：${S.customTopic.trim()}。不管原生逻辑如何，技术实现和解题风格必须全面向该工具栈偏重与靠拢！`;
+  if (activeRoles && activeRoles.length > 0) {
+    sys += `【💡 当前联合会审技术阵列】：\n`;
+    activeRoles.forEach(rId => {
+      const target = ROLES.find(r => r.id === rId);
+      if(target) sys += `• [${target.name}专家模块]：${target.prompt}\n`;
+    });
+    sys += `请将以上被点亮的专业视角融会贯通，直接输出复合重组方案。`;
+  } else {
+    sys += `当前未锁定任何特定技术路线。核心任务：请自由发挥你的全部技术广度，客观审视、灵活提供最切合实际的诊断方案。`;
+  }
+  
+  if(activeTopic && activeTopic.trim()){
+    sys += `\n\n【🔥 核心议题绝对主导方向】：必须完全无条件倾向于研究、运用、对齐此工具或方法论：${activeTopic.trim()}。不管原生逻辑如何，技术实现和解题风格必须全面向该工具栈偏重与靠拢！`;
   }
 
   const rel = S.mems.filter(m => extractKW(q).some(k => m.text.includes(k))).slice(0,3);
@@ -226,9 +253,15 @@ function cpCode(btn, b64){
 
 function scrollEnd(){ setTimeout(() => { const m = document.querySelector('main'); if(m) m.scrollTop = m.scrollHeight; }, 50); }
 
-function triggerReplay(text) {
+function triggerReplay(text, boundTopic, boundRoles) {
   if (S.loading) return;
   S.inp = text;
+  S.customTopic = boundTopic || ''; 
+  try {
+    S.activeRoleIds = boundRoles ? JSON.parse(boundRoles) : ['fault'];
+  } catch(e) {
+    S.activeRoleIds = ['fault'];
+  }
   send();
 }
 
@@ -256,14 +289,37 @@ async function send(){
     return;
   }
 
-  S.msgs.push({role: 'user', content: text, ts: now2(), id: Date.now()});
-  S.inp = ''; S.loading = true; 
+  // 1. 抓取本轮独立快照
+  const currentTurnTopic = S.customTopic ? S.customTopic.trim() : '';
+  const currentTurnRoles = [...S.activeRoleIds];
+
+  S.msgs.push({
+    role: 'user', 
+    content: text, 
+    ts: now2(), 
+    id: Date.now(), 
+    boundTopic: currentTurnTopic,
+    boundRoles: JSON.stringify(currentTurnRoles)
+  });
+  
+  // 2. 彻底释放输入框与状态
+  S.inp = ''; 
+  S.customTopic = ''; 
   const ta = document.getElementById('mInp');
   if(ta) ta.value = '';
+  const ti = document.getElementById('tInp');
+  if(ti) ti.value = '';
+  
   render(); scrollEnd();
 
   let roundTableLog = `【主诉问题】：${text}\n`;
-  if(S.customTopic && S.customTopic.trim()) roundTableLog += `【议题主导方向】：${S.customTopic.trim()}\n`;
+  if(currentTurnTopic) roundTableLog += `【议题主导方向】：${currentTurnTopic}\n`;
+  if(currentTurnRoles.length > 0) {
+    const names = currentTurnRoles.map(id => ROLES.find(r=>r.id===id)?.name || id);
+    roundTableLog += `【已锁定专家视角】：${names.join(' + ')}\n`;
+  } else {
+    roundTableLog += `【已锁定专家视角】：未指定（全功能自由发挥模式）\n`;
+  }
   roundTableLog += `\n`;
 
   let finalSolution = "";
@@ -282,12 +338,12 @@ async function send(){
 
         let promptForAi = `这里有一份【圆桌共享资料】：\n${roundTableLog}\n`;
         if (debateRound === 1 && i === 0) {
-          promptForAi += `作为首位发言者，请给出独立诊断解决方案。`;
+          promptForAi += `作为首位发言者，请给出多维融合解决方案。`;
         } else {
           promptForAi += `请审阅上方其它节点的方案。如果你完全同意此路线且无需任何补足，必须在开头回复“【完全同意，达成共识】”；若有更好的偏向性技术修正，请提出。`;
         }
 
-        const reply = await requestAi(currentAi, buildSys(text), [], promptForAi);
+        const reply = await requestAi(currentAi, buildSys(text, currentTurnTopic, currentTurnRoles), [], promptForAi);
         const isAgree = reply.includes('完全同意') || reply.includes('达成共识');
         if(isAgree) roundAgreements++;
 
@@ -326,7 +382,9 @@ async function send(){
       kw,
       id: msgId,
       rawTxt: finalSolution,
-      rawOrigUserTxt: text
+      rawOrigUserTxt: text,
+      boundTopic: currentTurnTopic,
+      boundRoles: JSON.stringify(currentTurnRoles)
     });
 
     const mem = {
@@ -401,8 +459,8 @@ function updateStage3D() {
 }
 
 let touchTimer;
-function onTouchStart(txt) {
-  touchTimer = setTimeout(() => { triggerReplay(txt); toast("🔄 已重新唤醒该轮历史议题"); }, 700);
+function onTouchStart(txt, topic, rolesJson) {
+  touchTimer = setTimeout(() => { triggerReplay(txt, topic, rolesJson); toast("🔄 已重新唤醒该轮历史议题"); }, 700);
 }
 function onTouchEnd() { clearTimeout(touchTimer); }
 
@@ -412,17 +470,37 @@ function render(){
     msgsHtml = `<div class="welcome">
       <div class="stage3d" id="dynamicStage3D"></div>
       <div class="wtitle">工控神录</div>
-      <div class="wdesc">全自适应多机联动圆桌架构 · 999上限知识深度缓存区</div>
+      <div class="wdesc">全自适应多机联动圆桌架构 · 支持领域多选交叉诊断</div>
     </div>`;
   } else {
     msgsHtml = S.msgs.map(m => {
       if(m.role === 'user') {
         const escaped = m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const tTopic = m.boundTopic ? m.boundTopic.replace(/'/g, "\\'") : '';
+        const rJson = m.boundRoles ? m.boundRoles.replace(/'/g, "\\'") : '[]';
+        
+        let metaDesc = [];
+        if(m.boundTopic) metaDesc.push(`🧭 议题: ${m.boundTopic}`);
+        if(m.boundRoles) {
+          try {
+            const arr = JSON.parse(m.boundRoles);
+            if(arr.length > 0) {
+              const names = arr.map(id => ROLES.find(r=>r.id===id)?.name || id);
+              metaDesc.push(`🦾 阵列: ${names.join('+')}`);
+            } else {
+              metaDesc.push(`🍃 模式: 自由发挥`);
+            }
+          } catch(e){}
+        }
+
         return `<div class="msgrow u">
           <div class="bbl u" 
-               ondblclick="triggerReplay('${escaped}')" 
-               ontouchstart="onTouchStart('${escaped}')" 
-               ontouchend="onTouchEnd()">${escaped}<div class="mtr">${m.ts}</div></div>
+               ondblclick="triggerReplay('${escaped}', '${tTopic}', '${rJson}')" 
+               ontouchstart="onTouchStart('${escaped}', '${tTopic}', '${rJson}')" 
+               ontouchend="onTouchEnd()">${escaped}
+               ${metaDesc.length > 0 ? `<div style="font-size:9px;color:rgba(0,0,0,0.4);margin-top:4px;font-weight:normal;line-height:1.2">${metaDesc.join(' | ')}</div>` : ''}
+               <div class="mtr">${m.ts}</div>
+          </div>
         </div>`;
       }
       if(m.role === 'error') return `<div class="msgrow"><div class="av">⚠</div><div class="bbl er">${m.content}</div></div>`;
@@ -436,13 +514,15 @@ function render(){
         const upActive = S.feedbackStates[`${m.id}-up`] ? 'active-up' : '';
         const downActive = S.feedbackStates[`${m.id}-down`] ? 'active' : '';
         const cleanRaw = m.rawOrigUserTxt ? m.rawOrigUserTxt.replace(/'/g, "\\'") : '';
+        const cleanTopic = m.boundTopic ? m.boundTopic.replace(/'/g, "\\'") : '';
+        const cleanRolesJson = m.boundRoles ? m.boundRoles.replace(/'/g, "\\'") : '[]';
         actionsHtml = `
           <div class="action-bar">
             <button class="act-btn" onclick="handleCopy(\`${m.content}\`)">📋 复制</button>
             <button class="act-btn" onclick="handleShare()">🔗 分享</button>
             <button class="act-btn ${upActive}" onclick="handleRate('${m.id}', 'up')">👍</button>
             <button class="act-btn ${downActive}" onclick="handleRate('${m.id}', 'down')">👎</button>
-            <button class="act-btn" style="margin-left:auto;color:#38bdf8" onclick="triggerReplay('${cleanRaw}')">🔄 重新来过</button>
+            <button class="act-btn" style="margin-left:auto;color:#38bdf8" onclick="triggerReplay('${cleanRaw}', '${cleanTopic}', '${cleanRolesJson}')">🔄 重新来过</button>
           </div>
         `;
       }
@@ -515,9 +595,15 @@ function render(){
       </div>
     </header>
     <div class="ctrlbar">
-      <input id="tInp" class="topic-input" type="text" placeholder="✍️ 输入自定义主导议题..." oninput="S.customTopic=this.value" title="输入特定AI或工具方向强制带节奏">
+      <div class="topic-wrapper">
+        <input id="tInp" class="topic-input" type="text" placeholder="✍️ 主导议题..." oninput="S.customTopic=this.value" title="输入特定技术栈强制带节奏">
+        <button class="topic-clear" onclick="S.customTopic='';document.getElementById('tInp').value='';toast('🧹 议题已清除，恢复默认');render();" title="清空主导议题">❌</button>
+      </div>
       <div class="sep"></div>
-      ${ROLES.map(r => `<button class="chip ${S.role.id===r.id?'cg':''}" onclick="S.role=ROLES.find(x=>x.id==='${r.id}');render()">${r.icon} ${r.name}</button>`).join('')}
+      ${ROLES.map(r => {
+        const isLight = S.activeRoleIds.includes(r.id);
+        return `<button class="chip ${isLight?'cg':''}" onclick="toggleRole('${r.id}')">${r.icon} ${r.name}</button>`;
+      }).join('')}
     </div>
     <main id="chatMain">${msgsHtml}<div id="end"></div></main>
     <footer>
@@ -525,7 +611,7 @@ function render(){
         <textarea id="mInp" rows="2" placeholder="投递突发工业故障到圆桌..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}" oninput="S.inp=this.value"></textarea>
         <button class="sendbtn" onclick="send()" ${S.loading?'disabled':''}>${S.loading?'⏳':'CONVENE'}</button>
       </div>
-      <div class="hint">长按或双击用户气泡可快捷“重新来过” · 会议自动收敛沉淀</div>
+      <div class="hint">长按或双击用户气泡可快捷“重新来过” · 芯片多选可进行交叉复合诊断</div>
     </footer>
     ${setHtml}`;
 
