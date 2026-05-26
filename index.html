@@ -6,31 +6,27 @@
 <title>工控神录</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#090d16;color:#cbd5e1;font-family:Consolas,Monaco,'Courier New',monospace;font-size:13px;height:100dvh;overflow:hidden;-webkit-user-select:none;user-select:none}
-.container{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;border-left:1px solid #1e293b;border-right:1px solid #1e293b;position:relative}
+body{background:#090d16;color:#cbd5e1;font-family:Consolas,Monaco,'Courier New',monospace;font-size:13px;height:100vh;height:-webkit-fill-available;overflow:hidden;-webkit-user-select:none;user-select:none}
+.container{max-width:480px;margin:0 auto;height:100vh;display:flex;flex-direction:column;border-left:1px solid #1e293b;border-right:1px solid #1e293b;position:relative}
 header{background:#0f172a;padding:12px 14px;border-bottom:1px solid rgba(245,158,11,0.25);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.logo{font-weight:900;font-size:15px;letter-spacing:2px;color:#f8fafc}.logo span{color:#f59e0b}
+.logo{font-weight:900;font-size:15px;letter-spacing:2px;color:#f8fafc}
 .hdr{display:flex;gap:6px;align-items:center}
 .hbtn{background:none;border:1px solid #1e293b;color:#64748b;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit;transition:all .2s}
 .hbtn:hover{border-color:#f59e0b;color:#f59e0b}
 .hbtn.on{border-color:#38bdf8;color:#38bdf8}
-.ctrlbar{background:#0a0f1a;padding:7px 12px;border-bottom:1px solid #1e293b;display:flex;gap:5px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;align-items:center}
-.ctrlbar::-webkit-scrollbar{display:none}
+.ctrlbar{background:#0a0f1a;padding:7px 12px;border-bottom:1px solid #1e293b;display:flex;gap:5px;overflow-x:auto;flex-shrink:0;align-items:center}
 
-/* 新增：主导议题组合输入框样式 */
 .topic-wrapper{display:flex;align-items:center;background:#0f172a;border:1px dashed #38bdf8;border-radius:10px;padding:0 4px 0 0;flex-shrink:0}
 .topic-input{background:none;border:none;color:#38bdf8;padding:4px 6px;font-size:11px;font-family:inherit;outline:none;width:110px}
 .topic-input::placeholder{color:#1e293b}
-.topic-clear{background:none;border:none;color:#475569;cursor:pointer;font-size:10px;padding:2px;display:flex;align-items:center;justify-content:center;transition:color 0.2s}
+.topic-clear{background:none;border:none;color:#475569;cursor:pointer;font-size:10px;padding:2px;display:flex;align-items:center;justify-content:center}
 .topic-clear:hover{color:#ef4444}
 
 .chip{padding:4px 10px;border:1px solid #1e293b;border-radius:12px;font-size:11px;color:#475569;cursor:pointer;white-space:nowrap;background:none;font-family:inherit;transition:all .18s}
 .chip:hover{border-color:#334155;color:#94a3b8}
 .chip.cg{border-color:#38bdf8;color:#38bdf8;background:rgba(56,189,248,0.07)}
 .sep{width:1px;height:16px;background:#1e293b;flex-shrink:0;margin:0 3px;align-self:center}
-main{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:#1e293b transparent}
-main::-webkit-scrollbar{width:3px}
-main::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
+main{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
 
 .welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;padding:30px 16px;text-align:center;position:relative}
 .stage3d{width:240px;height:180px;position:relative;display:flex;align-items:center;justify-content:center;perspective:1000px}
@@ -46,8 +42,6 @@ main::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
 .av{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:1px solid #1e293b;background:#0f172a}
 .bbl{max-width:82%;padding:9px 12px;border-radius:10px;line-height:1.6;word-break:break-word;font-size:13px;-webkit-user-select:text;user-select:text}
 .bbl.u{background:#f59e0b;color:#020617;font-weight:600;border-radius:10px 10px 0 10px;cursor:pointer;position:relative}
-.bbl.u::after{content:'长按/双击重调';position:absolute;bottom:-14px;right:2px;font-size:9px;color:#475569;font-weight:normal;opacity:0;transition:opacity 0.2s}
-.bbl.u:hover::after{opacity:1}
 .bbl.ai{background:#0f172a;border:1px solid #1e293b;color:#e2e8f0;border-radius:10px 10px 10px 0}
 .bbl.deb{background:#09111e;border:1px dashed #38bdf8;color:#93c5fd;border-radius:10px}
 .bbl.er{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:10px 10px 10px 0}
@@ -69,83 +63,98 @@ main::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
 .codecopy:hover{color:#38bdf8}
 pre{margin:0;padding:9px 11px;font-size:12px;overflow-x:auto;color:#86efac;line-height:1.55}
 .memtag{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:1px 7px;background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:8px;color:#34d399;margin-top:5px}
+
 .typing{display:flex;align-items:center;gap:4px;padding:2px 0}
 .typing i{width:6px;height:6px;border-radius:50%;background:#f59e0b;opacity:.4;animation:blink 1.1s infinite;font-style:normal}
 .typing i:nth-child(2){animation-delay:.2s}
 .typing i:nth-child(3){animation-delay:.4s}
 .ttxt{font-size:11px;color:#f59e0b;margin-left:5px;font-weight:bold;letter-spacing:1px}
 @keyframes blink{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+
 footer{padding:10px 12px 12px;border-top:1px solid #1e293b;background:rgba(9,13,22,0.98);flex-shrink:0}
 .inputrow{display:flex;gap:7px;align-items:flex-end}
-textarea{flex:1;background:#0a0f1a;border:1px solid #1e293b;border-radius:8px;padding:9px 12px;color:#f8fafc;font-family:Consolas,Monaco,monospace;font-size:13px;resize:none;outline:none;line-height:1.5;max-height:110px;transition:border-color .2s;-webkit-user-select:text;user-select:text}
+textarea{flex:1;background:#0a0f1a;border:1px solid #1e293b;border-radius:8px;padding:9px 12px;color:#f8fafc;font-family:Consolas,Monaco,monospace;font-size:13px;resize:none;outline:none;line-height:1.5;max-height:110px}
 textarea:focus{border-color:rgba(245,158,11,0.5)}
-.sendbtn{background:#f59e0b;color:#020617;border:none;padding:9px 16px;border-radius:8px;font-weight:900;cursor:pointer;font-size:13px;font-family:inherit;letter-spacing:1px;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.sendbtn{background:#f59e0b;color:#020617;border:none;padding:9px 16px;border-radius:8px;font-weight:900;cursor:pointer;font-size:13px;font-family:inherit;letter-spacing:1px;white-space:nowrap;flex-shrink:0}
 .sendbtn:disabled{opacity:.3;cursor:not-allowed}
-.sendbtn:not(:disabled):hover{background:#fbbf24;box-shadow:0 0 12px rgba(245,158,11,0.4)}
-.hint{font-size:10px;color:#1e293b;margin-top:5px;text-align:center}
 
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:15px}
-.setbox{background:#0f172a;border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:16px;width:100%;max-width:400px;max-height:90dvh;overflow-y:auto}
+.setbox{background:#0f172a;border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:16px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto}
 .settitle{font-size:12px;color:#f59e0b;font-weight:700;letter-spacing:2px;margin-bottom:10px;border-bottom:1px solid rgba(245,158,11,0.15);padding-bottom:3px}
 .setrow{display:flex;align-items:center;gap:6px;margin-bottom:8px}
 .setname{font-size:11px;color:#64748b;width:75px;flex-shrink:0}
 .setinput{flex:1;background:rgba(255,255,255,0.04);border:1px solid #1e293b;border-radius:5px;padding:5px 8px;color:#f8fafc;font-size:11px;font-family:Consolas,monospace;outline:none}
 .setinput:focus{border-color:#f59e0b}
-.setdel{background:none;border:1px solid rgba(239,68,68,0.4);color:#ef4444;padding:2px 6px;border-radius:4px;cursor:pointer;font-size:10px;font-family:inherit}
+.setdel{background:none;border:1px solid rgba(239,68,68,0.4);color:#ef4444;padding:2px 6px;border-radius:4px;cursor:pointer;font-size:10px}
 .addbox{background:rgba(255,255,255,0.02);border:1px dashed #334155;border-radius:8px;padding:10px;margin-top:10px;margin-bottom:12px}
-.addbtn{width:100%;padding:6px;background:#38bdf8;color:#020617;border:none;border-radius:5px;cursor:pointer;font-weight:700;font-size:11px;font-family:inherit;margin-top:6px}
-.setmempanel{background:rgba(255,255,255,0.02);border:1px solid #1e293b;border-radius:6px;padding:8px;margin-bottom:12px}
-.setmemlist{max-height:140px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-top:5px}
-.memitem{font-size:11px;color:#94a3b8;line-height:1.4;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
-.memclear{background:none;border:none;color:#ef4444;font-size:10px;cursor:pointer;font-family:inherit;font-weight:700}
-.setclose{width:100%;padding:9px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#f59e0b;border-radius:7px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700}
+.addbtn{width:100%;padding:6px;background:#38bdf8;color:#020617;border:none;border-radius:5px;cursor:pointer;font-weight:700;font-size:11px;margin-top:6px}
+.setclose{width:100%;padding:9px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#f59e0b;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(245,158,11,0.9);color:#020617;padding:5px 16px;border-radius:16px;font-size:11px;z-index:300;font-weight:700;white-space:nowrap}
 </style>
 </head>
 <body>
 <div class="container" id="app"></div>
 <script>
-const ROLES=[
-  {id:'fault',icon:'⚡',name:'故障诊断',prompt:'核心任务：工控故障诊断。输出：①最可能原因（按概率降序）②具体排查步骤③寄存器/参数地址。禁止废话，直击要害。'},
-  {id:'plc',icon:'💻',name:'PLC编程',prompt:'核心任务：PLC编程。直接给出能粘贴使用的代码，注明平台（博途SCL/三菱ST/欧姆龙ST），必须有中文注释。'},
-  {id:'robot',icon:'🦾',name:'机器人',prompt:'核心任务：工业机器人（FANUC/安川/川崎/ABB/KUKA）。给出具体操作路径、菜单名称、参数值，不给模糊答案。'},
-  {id:'comm',icon:'🔗',name:'通信调试',prompt:'核心任务：工业通信（Profinet/EtherCAT/Modbus）。给出具体配置参数、IP/站号设置、排查步骤。'}
+// ==========================================
+// 🛡️ 核心区：管理员固化永久席位 (换设备永不丢失)
+// ==========================================
+// 管理员可以直接在这里无缝填入常用主路由，无论如何清理缓存或更换终端，这几个AI永远稳坐后台！
+const GLOBAL_CORE_AIS = [
+  {
+    name: '永久-Gemini', 
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=', 
+    key: '在这里直接填入你的核心Key', 
+    modelName: 'gemini-2.0-flash', 
+    type: 'gemini',
+    isCore: true // 核心标识
+  },
+  {
+    name: '永久-DeepSeek', 
+    url: 'https://api.deepseek.com/v1/chat/completions', 
+    key: '在这里直接填入你的核心Key', 
+    modelName: 'deepseek-chat', 
+    type: 'openai',
+    isCore: true
+  }
 ];
 
-const PERSONA_CAT=`你是《工控神录》AI副驾驶，代号"黑猫特工"。人设：高冷理性、一针见血。核心要求：每次回答必须极其精炼，严禁超过250字，严禁说任何客套废话！`;
-const KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧姆龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
-const extractKW=t=>KWS.filter(k=>t.includes(k));
+const ROLES=[
+  {id:'fault',icon:'⚡',name:'故障诊断',prompt:'核心任务：工控故障诊断。输出：①最可能原因（按概率降序）②具体排查步骤③寄存器/参数地址。'},
+  {id:'plc',icon:'💻',name:'PLC编程',prompt:'核心任务：PLC编程。直接给出能粘贴使用的代码，注明平台（博途SCL/三菱ST/欧姆龙ST），必须有中文注释。'},
+  {id:'robot',icon:'🦾',name:'机器人',prompt:'核心任务：工业机器人（FANUC/安川/川崎/ABB/KUKA）。给出具体操作路径、菜单名称、参数值。'},
+  {id:'comm',icon:'🔗',name:'通信调试',prompt:'核心任务：工业通信（Profinet/EtherCAT/Modbus）。给出具体配置参数、IP/站号设置。'}
+];
 
+const PERSONA_CAT='你是《工控神录》AI副驾驶，代号"黑猫特工"。人设：高冷理性、一针见血。核心要求：每次回答必须极其精炼，严禁超过250字，严禁说任何客套废话！';
+const KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧姆龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
+const extractKW=function(t){ return KWS.filter(function(k){ return t.indexOf(k) > -1; }); };
+
+// 兼容性Local数据抓取
 let savedAis = [];
 try {
-  const localData = localStorage.getItem('gkcsn_custom_ais');
+  var localData = localStorage.getItem('gkcsn_custom_ais');
   if(localData) savedAis = JSON.parse(localData);
 } catch(e) { savedAis = []; }
-
-if(!Array.isArray(savedAis) || savedAis.length === 0) {
-  savedAis = [
-    {name: 'Gemini 2.0', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=', key: '', modelName: 'gemini-2.0-flash', type: 'gemini'},
-    {name: 'DeepSeek V3', url: 'https://api.deepseek.com/v1/chat/completions', key: '', modelName: 'deepseek-chat', type: 'openai'}
-  ];
-}
+if(!Array.isArray(savedAis)) savedAis = [];
 
 let savedMems = [];
 try {
-  const localMems = localStorage.getItem('gkcsn_m');
+  var localMems = localStorage.getItem('gkcsn_m');
   if(localMems) savedMems = JSON.parse(localMems);
 } catch(e) { savedMems = []; }
 if(!Array.isArray(savedMems)) savedMems = [];
 
+// 全局运行状态机
 let S = {
-  activeRoleIds: ['fault'], // 改为数组架构，默认开启故障诊断芯片
+  activeRoleIds: ['fault'], 
   customTopic: '', 
   msgs: [],
   loading: false,
   showSet: false,
+  isAdmin: false, // 鉴权状态标志位
   toast: '',
   toastTimer: null,
   inp: '',
-  activeAiIdx: 0,
   customAis: savedAis,
   mems: savedMems,
   angle: 0,
@@ -153,482 +162,339 @@ let S = {
   feedbackStates: {} 
 };
 
-const saveCustomAis = () => localStorage.setItem('gkcsn_custom_ais', JSON.stringify(S.customAis));
-const saveMems = () => localStorage.setItem('gkcsn_m', JSON.stringify(S.mems));
-const now2 = () => new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'});
-const nowF = () => new Date().toLocaleString('zh-CN', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+// 合并核心固化AI和用户临时添加的AI
+function getAllAis() {
+  return GLOBAL_CORE_AIS.concat(S.customAis);
+}
+
+const saveCustomAis = function() { localStorage.setItem('gkcsn_custom_ais', JSON.stringify(S.customAis)); };
+const saveMems = function() { localStorage.setItem('gkcsn_m', JSON.stringify(S.mems)); };
+const now2 = function() { return new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'}); };
+const nowF = function() { return new Date().toLocaleString('zh-CN', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}); };
 
 function toast(msg){
   clearTimeout(S.toastTimer); S.toast=msg; render();
-  S.toastTimer=setTimeout(()=>{S.toast=''; render();},2200);
+  S.toastTimer=setTimeout(function(){S.toast=''; render();},2200);
 }
 
-// 切换芯片选择：支持多选、反选、全部取消（自由发挥模式）
 function toggleRole(roleId) {
-  const idx = S.activeRoleIds.indexOf(roleId);
-  if (idx > -1) {
-    S.activeRoleIds.splice(idx, 1); // 再次点击则取消亮起
-  } else {
-    S.activeRoleIds.push(roleId); // 点击未亮起的则加入数组
-  }
+  var idx = S.activeRoleIds.indexOf(roleId);
+  if (idx > -1) { S.activeRoleIds.splice(idx, 1); } else { S.activeRoleIds.push(roleId); }
   render();
 }
 
 async function requestAi(ai, sys, hist, msg) {
-  if(!ai.key) throw new Error(`未配置 [${ai.name}] 的 API Key，请在管理面填写！`);
-  if(ai.type === 'gemini' || ai.url.includes('generativelanguage.googleapis.com')) {
-    const contents = [];
-    hist.forEach(m => contents.push({role: m.role==='user'?'user':'model', parts:[{text: m.content}]}));
+  if(!ai.key || ai.key.indexOf('填入') > -1) throw new Error('未配置 [' + ai.name + '] 的有效 API Key！');
+  if(ai.type === 'gemini' || ai.url.indexOf('generativelanguage.googleapis.com') > -1) {
+    var contents = [];
+    hist.forEach(function(m) { contents.push({role: m.role==='user'?'user':'model', parts:[{text: m.content}]}); });
     contents.push({role:'user', parts:[{text: msg}]});
-    let fullUrl = ai.url;
-    if(!fullUrl.includes('key=')) fullUrl += (fullUrl.includes('?') ? '&' : '?') + 'key=' + ai.key;
-    const r = await fetch(fullUrl, {
+    var fullUrl = ai.url;
+    if(fullUrl.indexOf('key=') === -1) fullUrl += (fullUrl.indexOf('?') > -1 ? '&' : '?') + 'key=' + ai.key;
+    var r = await fetch(fullUrl, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         system_instruction: {parts: [{text: sys}]},
-        contents,
+        contents: contents,
         generationConfig: {maxOutputTokens: 800, temperature: 0.4}
       })
     });
-    if(!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e?.error?.message || 'HTTP ' + r.status); }
-    const d = await r.json();
-    return d.candidates?.[0]?.content?.parts?.[0]?.text || '（无法解析Gemini返回内容）';
+    if(!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error((e && e.error && e.error.message) || 'HTTP ' + r.status); }
+    var d = await r.json();
+    return (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts && d.candidates[0].content.parts[0] && d.candidates[0].content.parts[0].text) || '（无法解析Gemini返回内容）';
   } else {
-    const messages = [{role: 'system', content: sys}];
-    hist.forEach(m => messages.push({role: m.role==='user'?'user':'assistant', content: m.content}));
+    var messages = [{role: 'system', content: sys}];
+    hist.forEach(function(m) { messages.push({role: m.role==='user'?'user':'assistant', content: m.content}); });
     messages.push({role: 'user', content: msg});
-    const r = await fetch(ai.url, {
+    var r = await fetch(ai.url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ai.key },
-      body: JSON.stringify({ model: ai.modelName || 'default', messages, max_tokens: 800, temperature: 0.4 })
+      body: JSON.stringify({ model: ai.modelName || 'default', messages: messages, max_tokens: 800, temperature: 0.4 })
     });
-    if(!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e?.error?.message || 'HTTP ' + r.status); }
-    const d = await r.json();
-    return d.choices?.[0]?.message?.content || '（无法解析OpenAI返回内容）';
+    if(!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error((e && e.error && e.error.message) || 'HTTP ' + r.status); }
+    var d = await r.json();
+    return (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '（无法解析OpenAI返回内容）';
   }
 }
 
 function buildSys(q, activeTopic, activeRoles) {
-  let sys = PERSONA_CAT + '\n\n';
-  
+  var sys = PERSONA_CAT + '\n\n';
   if (activeRoles && activeRoles.length > 0) {
-    sys += `【💡 当前联合会审技术阵列】：\n`;
-    activeRoles.forEach(rId => {
-      const target = ROLES.find(r => r.id === rId);
-      if(target) sys += `• [${target.name}专家模块]：${target.prompt}\n`;
+    sys += '【💡 当前联合会审技术阵列】：\n';
+    activeRoles.forEach(function(rId) {
+      var target = ROLES.find(function(r){ return r.id === rId; });
+      if(target) sys += '• [' + target.name + '专家模块]：' + target.prompt + '\n';
     });
-    sys += `请将以上被点亮的专业视角融会贯通，直接输出复合重组方案。`;
   } else {
-    sys += `当前未锁定任何特定技术路线。核心任务：请自由发挥你的全部技术广度，客观审视、灵活提供最切合实际的诊断方案。`;
+    sys += '当前未锁定特定路线，全功能自由发挥。';
   }
-  
   if(activeTopic && activeTopic.trim()){
-    sys += `\n\n【🔥 核心议题绝对主导方向】：必须完全无条件倾向于研究、运用、对齐此工具或方法论：${activeTopic.trim()}。不管原生逻辑如何，技术实现和解题风格必须全面向该工具栈偏重与靠拢！`;
+    sys += '\n\n【🔥 核心议题绝对主导方向】：必须完全无条件倾向于研究与运用：' + activeTopic.trim() + '。';
   }
-
-  const rel = S.mems.filter(m => extractKW(q).some(k => m.text.includes(k))).slice(0,3);
+  var rel = S.mems.filter(function(m) { return extractKW(q).some(function(k) { return m.text.indexOf(k) > -1; }); }).slice(0,3);
   if(rel.length > 0) {
     sys += '\n\n【历史经验会议底账】\n';
-    rel.forEach(m => { sys += `• [${m.time}] ${m.text}\n`; });
+    rel.forEach(function(m) { sys += '• [' + m.time + '] ' + m.text + '\n'; });
   }
   return sys;
 }
 
 function renderContent(text){
-  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return text.split(/(```[\s\S]*?```)/g).map(p => {
-    if(p.startsWith('```')){
-      const lines = p.slice(3,-3).split('\n');
-      const lang = lines[0].trim() || 'code';
-      const code = lines.slice(1).join('\n');
-      return `<div class="codeblock"><div class="codelang"><span>${lang}</span><button class="codecopy" onclick="cpCode(this,'${btoa(unescape(encodeURIComponent(code)))}')">复制</button></div><pre>${esc(code)}</pre></div>`;
+  var esc = function(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  return text.split(/(```[\s\S]*?```)/g).map(function(p) {
+    if(p.indexOf('```') === 0){
+      var lines = p.slice(3,-3).split('\n');
+      var lang = lines[0].trim() || 'code';
+      var code = lines.slice(1).join('\n');
+      return '<div class="codeblock"><div class="codelang"><span>'+lang+'</span><button class="codecopy" onclick="cpCode(this,\''+btoa(unescape(encodeURIComponent(code)))+'\')">复制</button></div><pre>'+esc(code)+'</pre></div>';
     }
-    return `<span style="white-space:pre-wrap">${esc(p)}</span>`;
+    return '<span style="white-space:pre-wrap">'+esc(p)+'</span>';
   }).join('');
 }
 
 function cpCode(btn, b64){
-  try{navigator.clipboard?.writeText(decodeURIComponent(escape(atob(b64)))); btn.textContent='✅'; setTimeout(()=>btn.textContent='复制',1500);}catch(e){}
+  try{navigator.clipboard.writeText(decodeURIComponent(escape(atob(b64)))); btn.textContent='✅'; setTimeout(function(){btn.textContent='复制';},1500);}catch(e){}
 }
 
-function scrollEnd(){ setTimeout(() => { const m = document.querySelector('main'); if(m) m.scrollTop = m.scrollHeight; }, 50); }
+function scrollEnd(){ setTimeout(function() { var m = document.querySelector('main'); if(m) m.scrollTop = m.scrollHeight; }, 60); }
 
 function triggerReplay(text, boundTopic, boundRoles) {
   if (S.loading) return;
   S.inp = text;
   S.customTopic = boundTopic || ''; 
-  try {
-    S.activeRoleIds = boundRoles ? JSON.parse(boundRoles) : ['fault'];
-  } catch(e) {
-    S.activeRoleIds = ['fault'];
-  }
+  try { S.activeRoleIds = boundRoles ? JSON.parse(boundRoles) : ['fault']; } catch(e) { S.activeRoleIds = ['fault']; }
   send();
 }
 
-function handleCopy(txt) {
-  navigator.clipboard?.writeText(txt);
-  toast("📋 方案已完整复制到剪贴板");
-}
-function handleShare() {
-  toast("🔗 已生成快照加密口令，随时可分享");
-}
-function handleRate(msgId, type) {
-  const key = `${msgId}-${type}`;
-  S.feedbackStates[key] = !S.feedbackStates[key];
-  toast(type === 'up' ? "👍 感谢反馈，系统将继续深化该技术栈" : "👎 已扣除该演进路径权重评分");
+function handleAdminLogin() {
+  var u = document.getElementById('admin_user').value.trim();
+  var p = document.getElementById('admin_pass').value.trim();
+  if(u === 'gks' && p === 'gkslhdw666') {
+    S.isAdmin = true;
+    toast('🔓 管理员身份验证通过，永久接口控制面板开放');
+  } else {
+    alert('账号或密码错误，拒绝签发高级权限！');
+  }
   render();
 }
 
 async function send(){
-  const text = S.inp.trim();
+  var text = S.inp.trim();
   if(!text || S.loading) return;
 
-  const activeAis = S.customAis.filter(ai => ai.key.length > 0);
+  var allAvailableAis = getAllAis();
+  var activeAis = allAvailableAis.filter(function(ai) { return ai.key && ai.key.indexOf('填入') === -1; });
   if(activeAis.length === 0) {
-    toast('⚠️ 未检测到已配置 Key 的 AI 接口！请前往管理面配置。');
+    toast('⚠️ 未检测到有效 API 接口！请让管理员固化或在管理面输入。');
     return;
   }
 
-  // 1. 抓取本轮独立快照
-  const currentTurnTopic = S.customTopic ? S.customTopic.trim() : '';
-  const currentTurnRoles = [...S.activeRoleIds];
+  var currentTurnTopic = S.customTopic ? S.customTopic.trim() : '';
+  var currentTurnRoles = S.activeRoleIds.slice();
 
   S.msgs.push({
-    role: 'user', 
-    content: text, 
-    ts: now2(), 
-    id: Date.now(), 
-    boundTopic: currentTurnTopic,
-    boundRoles: JSON.stringify(currentTurnRoles)
+    role: 'user', content: text, ts: now2(), id: Date.now(), 
+    boundTopic: currentTurnTopic, boundRoles: JSON.stringify(currentTurnRoles)
   });
   
-  // 2. 彻底释放输入框与状态
-  S.inp = ''; 
-  S.customTopic = ''; 
-  const ta = document.getElementById('mInp');
-  if(ta) ta.value = '';
-  const ti = document.getElementById('tInp');
-  if(ti) ti.value = '';
-  
+  S.inp = ''; S.customTopic = '';
+  var ta = document.getElementById('mInp'); if(ta) ta.value = '';
+  var ti = document.getElementById('tInp'); if(ti) ti.value = '';
   render(); scrollEnd();
 
-  let roundTableLog = `【主诉问题】：${text}\n`;
-  if(currentTurnTopic) roundTableLog += `【议题主导方向】：${currentTurnTopic}\n`;
-  if(currentTurnRoles.length > 0) {
-    const names = currentTurnRoles.map(id => ROLES.find(r=>r.id===id)?.name || id);
-    roundTableLog += `【已锁定专家视角】：${names.join(' + ')}\n`;
-  } else {
-    roundTableLog += `【已锁定专家视角】：未指定（全功能自由发挥模式）\n`;
-  }
-  roundTableLog += `\n`;
+  var roundTableLog = '【主诉问题】' + text + '\n';
+  if(currentTurnTopic) roundTableLog += '【议题主导方向】' + currentTurnTopic + '\n';
+  roundTableLog += '\n';
 
-  let finalSolution = "";
-  let debateRound = 1;
-  const maxRounds = 3;
-  let consensusReached = false;
+  var finalSolution = "";
+  var debateRound = 1;
+  var maxRounds = 2;
+  var consensusReached = false;
 
   try {
     while(debateRound <= maxRounds && !consensusReached) {
-      let roundAgreements = 0;
-
-      for(let i=0; i < activeAis.length; i++) {
-        const currentAi = activeAis[i];
-        S.currentSpeaker = `${currentAi.name} (第${debateRound}轮会审)`;
+      var roundAgreements = 0;
+      for(var i=0; i < activeAis.length; i++) {
+        var currentAi = activeAis[i];
+        S.currentSpeaker = currentAi.name + ' (R' + debateRound + ')';
         render(); scrollEnd();
 
-        let promptForAi = `这里有一份【圆桌共享资料】：\n${roundTableLog}\n`;
+        var promptForAi = '共享资料：\n' + roundTableLog + '\n';
         if (debateRound === 1 && i === 0) {
-          promptForAi += `作为首位发言者，请给出多维融合解决方案。`;
+          promptForAi += '请给出独立系统诊断及解决方案。';
         } else {
-          promptForAi += `请审阅上方其它节点的方案。如果你完全同意此路线且无需任何补足，必须在开头回复“【完全同意，达成共识】”；若有更好的偏向性技术修正，请提出。`;
+          promptForAi += '请审阅上方其它节点的方案。完全同意则回复“【完全同意，达成共识】”；若有补足修正请直接指出。';
         }
 
-        const reply = await requestAi(currentAi, buildSys(text, currentTurnTopic, currentTurnRoles), [], promptForAi);
-        const isAgree = reply.includes('完全同意') || reply.includes('达成共识');
+        var reply = await requestAi(currentAi, buildSys(text, currentTurnTopic, currentTurnRoles), [], promptForAi);
+        var isAgree = reply.indexOf('完全同意') > -1 || reply.indexOf('达成共识') > -1;
         if(isAgree) roundAgreements++;
 
-        roundTableLog += `▶ [${currentAi.name}]: ${reply}\n\n`;
-        
+        roundTableLog += '▶ [' + currentAi.name + ']: ' + reply + '\n\n';
         S.msgs.push({
-          role: 'assistant',
-          isDebate: true,
-          content: reply,
-          aiName: `${currentAi.name} [R${debateRound}]`,
+          role: 'assistant', isDebate: true, content: reply,
+          aiName: currentAi.name + ' [R' + debateRound + ']',
           roleName: isAgree ? '🟢 赞同共识' : '⚡ 审议修正',
-          ts: now2(),
-          id: Date.now() + Math.random()
+          ts: now2(), id: Date.now() + Math.random()
         });
         render(); scrollEnd();
-        
         if(!isAgree || !finalSolution) finalSolution = reply;
       }
-
-      if(roundAgreements === activeAis.length || activeAis.length === 1) {
-        consensusReached = true;
-      } else {
-        debateRound++;
-      }
+      if(roundAgreements === activeAis.length || activeAis.length === 1) { consensusReached = true; } else { debateRound++; }
     }
 
-    const msgId = Date.now();
-    const kw = extractKW(text + finalSolution);
+    var msgId = Date.now();
+    var kw = extractKW(text + finalSolution);
     S.msgs.push({
-      role: 'assistant',
-      isDebate: false,
-      content: `🏆 【圆桌联合会议终审决议】\n\n经过多轴联合激辩，最终达成共识解如下：\n\n${finalSolution}`,
-      aiName: '圆桌联合会议',
-      roleName: '最终执行方案',
-      ts: now2(),
-      kw,
-      id: msgId,
-      rawTxt: finalSolution,
-      rawOrigUserTxt: text,
-      boundTopic: currentTurnTopic,
-      boundRoles: JSON.stringify(currentTurnRoles)
+      role: 'assistant', isDebate: false,
+      content: '🏆 【圆桌联合会议终审决议】\n\n' + finalSolution,
+      aiName: '圆桌联合会议', roleName: '最终方案', ts: now2(), kw: kw, id: msgId,
+      rawTxt: finalSolution, rawOrigUserTxt: text, boundTopic: currentTurnTopic, boundRoles: JSON.stringify(currentTurnRoles)
     });
 
-    const mem = {
-      id: Date.now(),
-      time: nowF(),
-      text: `[圆桌决议] 问:${text.slice(0,18)}… 结案:${finalSolution.slice(0,40)}…`,
-      kw
-    };
-    S.mems = [mem, ...S.mems].slice(0, 999);
+    S.mems.unshift({ id: Date.now(), time: nowF(), text: '[共识] 问:' + text.slice(0,12) + '… 结案:' + finalSolution.slice(0,30) + '…', kw: kw });
+    S.mems = S.mems.slice(0, 999);
     saveMems();
-
   } catch(e) {
     S.msgs.push({role: 'error', content: '❌ 圆桌通信中断: ' + e.message, ts: now2(), id: Date.now()});
   }
 
-  S.loading = false;
-  S.currentSpeaker = '';
+  S.loading = false; S.currentSpeaker = '';
   render(); scrollEnd();
 }
 
 function addNewAi() {
-  const name = document.getElementById('new_name')?.value?.trim();
-  const url = document.getElementById('new_url')?.value?.trim();
-  const key = document.getElementById('new_key')?.value?.trim();
-  const mName = document.getElementById('new_mname')?.value?.trim();
-  const type = document.getElementById('new_type')?.value;
+  var name = document.getElementById('new_name').value.trim();
+  var url = document.getElementById('new_url').value.trim();
+  var key = document.getElementById('new_key').value.trim();
+  var mName = document.getElementById('new_mname').value.trim();
+  var type = document.getElementById('new_type').value;
   if(!name || !url || !key) { alert('请将必填信息填写完整！'); return; }
-  S.customAis.push({ name, url, key, modelName: mName, type });
+  S.customAis.push({ name: name, url: url, key: key, modelName: mName, type: type });
   saveCustomAis();
-  toast('✅ 成功加入圆桌席位');
+  toast('✅ 成功加入设备级临时席位');
   render();
 }
 
 function deleteAi(idx, e) {
   e.stopPropagation();
-  if(S.customAis.length <= 1) { alert('请至少保留一个 AI 接口！'); return; }
   S.customAis.splice(idx, 1);
-  if(S.activeAiIdx >= S.customAis.length) S.activeAiIdx = 0;
   saveCustomAis();
   render();
 }
 
 function updateStage3D() {
-  const stage = document.getElementById('dynamicStage3D');
+  var stage = document.getElementById('dynamicStage3D');
   if(!stage) return;
-  let orbitHtml = '';
-  const activeCount = S.customAis.length;
+  var orbitHtml = '';
+  var allAis = getAllAis();
+  var activeCount = allAis.length;
   
-  const catEl = document.querySelector('.wcat');
-  if(catEl) {
-    if(S.loading) catEl.classList.add('godmode');
-    else catEl.classList.remove('godmode');
-  }
+  var catEl = document.querySelector('.wcat');
+  if(catEl) { if(S.loading) catEl.classList.add('godmode'); else catEl.classList.remove('godmode'); }
 
-  S.customAis.forEach((ai, idx) => {
-    const personalAngle = S.angle + (idx * (Math.PI * 2 / activeCount));
-    const rx = 85; 
-    const ry = 35; 
-    const x = Math.cos(personalAngle) * rx;
-    const y = Math.sin(personalAngle) * ry;
-    
-    const sinNorm = Math.sin(personalAngle);
-    const scale = 0.72 + (sinNorm + 1) * 0.23; 
-    const opacity = ai.key ? (0.5 + (sinNorm + 1) * 0.3) : 0.2; 
-    const zIndex = Math.floor((sinNorm + 1) * 10);
+  allAis.forEach(function(ai, idx) {
+    var personalAngle = S.angle + (idx * (Math.PI * 2 / activeCount));
+    var rx = 85; var ry = 35; 
+    var x = Math.cos(personalAngle) * rx; var y = Math.sin(personalAngle) * ry;
+    var sinNorm = Math.sin(personalAngle);
+    var scale = 0.72 + (sinNorm + 1) * 0.23; 
+    var opacity = (ai.key && ai.key.indexOf('填入') === -1) ? (0.5 + (sinNorm + 1) * 0.3) : 0.2; 
+    var zIndex = Math.floor((sinNorm + 1) * 10);
 
-    orbitHtml += `<div class="orbit-ai" style="transform: translate3d(${x}px, ${y}px, 0px) scale(${scale}); opacity: ${opacity}; z-index: ${zIndex}; ${ai.key?'border-color:#f59e0b;color:#f8fafc':''}">
-      ${ai.key ? '⚡' : '⚪'} ${ai.name}
-    </div>`;
+    orbitHtml += '<div class="orbit-ai" style="transform: translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + '); opacity: ' + opacity + '; z-index: ' + zIndex + '; ' + (ai.isCore?'border-color:#34d399;':'') + '">' +
+      (ai.isCore ? '👑 ' : '⚡ ') + ai.name +
+    '</div>';
   });
-  stage.innerHTML = `<div class="wcat ${S.loading?'godmode':''}">🐱</div>${orbitHtml}`;
+  stage.innerHTML = '<div class="wcat ' + (S.loading?'godmode':'') + '">🐱</div>' + orbitHtml;
 }
 
 let touchTimer;
-function onTouchStart(txt, topic, rolesJson) {
-  touchTimer = setTimeout(() => { triggerReplay(txt, topic, rolesJson); toast("🔄 已重新唤醒该轮历史议题"); }, 700);
-}
+function onTouchStart(txt, topic, rolesJson) { touchTimer = setTimeout(function() { triggerReplay(txt, topic, rolesJson); toast("🔄 已唤醒此轮会议设定"); }, 700); }
 function onTouchEnd() { clearTimeout(touchTimer); }
 
 function render(){
-  let msgsHtml = '';
+  var msgsHtml = '';
   if(S.msgs.length === 0) {
-    msgsHtml = `<div class="welcome">
-      <div class="stage3d" id="dynamicStage3D"></div>
-      <div class="wtitle">工控神录</div>
-      <div class="wdesc">全自适应多机联动圆桌架构 · 支持领域多选交叉诊断</div>
-    </div>`;
+    msgsHtml = '<div class="welcome"><div class="stage3d" id="dynamicStage3D"></div><div class="wtitle">工控神录</div><div class="wdesc">核心架构极致兼容 · 永久/临时双轨制API圆桌系统</div></div>';
   } else {
-    msgsHtml = S.msgs.map(m => {
+    msgsHtml = S.msgs.map(function(m) {
       if(m.role === 'user') {
-        const escaped = m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        const tTopic = m.boundTopic ? m.boundTopic.replace(/'/g, "\\'") : '';
-        const rJson = m.boundRoles ? m.boundRoles.replace(/'/g, "\\'") : '[]';
-        
-        let metaDesc = [];
-        if(m.boundTopic) metaDesc.push(`🧭 议题: ${m.boundTopic}`);
+        var escaped = m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        var tTopic = m.boundTopic ? m.boundTopic.replace(/'/g, "\\'") : '';
+        var rJson = m.boundRoles ? m.boundRoles.replace(/'/g, "\\'") : '[]';
+        var metaDesc = [];
+        if(m.boundTopic) metaDesc.push('🧭 ' + m.boundTopic);
         if(m.boundRoles) {
           try {
-            const arr = JSON.parse(m.boundRoles);
+            var arr = JSON.parse(m.boundRoles);
             if(arr.length > 0) {
-              const names = arr.map(id => ROLES.find(r=>r.id===id)?.name || id);
-              metaDesc.push(`🦾 阵列: ${names.join('+')}`);
-            } else {
-              metaDesc.push(`🍃 模式: 自由发挥`);
+              var names = arr.map(function(id) { var r = ROLES.find(function(x){return x.id===id;}); return r ? r.name : id; });
+              metaDesc.push('🦾 ' + names.join('+'));
             }
           } catch(e){}
         }
-
-        return `<div class="msgrow u">
-          <div class="bbl u" 
-               ondblclick="triggerReplay('${escaped}', '${tTopic}', '${rJson}')" 
-               ontouchstart="onTouchStart('${escaped}', '${tTopic}', '${rJson}')" 
-               ontouchend="onTouchEnd()">${escaped}
-               ${metaDesc.length > 0 ? `<div style="font-size:9px;color:rgba(0,0,0,0.4);margin-top:4px;font-weight:normal;line-height:1.2">${metaDesc.join(' | ')}</div>` : ''}
-               <div class="mtr">${m.ts}</div>
-          </div>
-        </div>`;
+        return '<div class="msgrow u"><div class="bbl u" ontouchstart="onTouchStart(\''+escaped+'\',\''+tTopic+'\',\''+rJson+'\')" ontouchend="onTouchEnd()">' + escaped + (metaDesc.length > 0 ? '<div style="font-size:9px;color:rgba(0,0,0,0.4);margin-top:4px;font-weight:normal;line-height:1.2">' + metaDesc.join(' | ') + '</div>' : '') + '<div class="mtr">' + m.ts + '</div></div></div>';
       }
-      if(m.role === 'error') return `<div class="msgrow"><div class="av">⚠</div><div class="bbl er">${m.content}</div></div>`;
-      
-      const kwtags = m.kw?.length > 0 ? `<div class="memtag">🧠 沉淀共识 · ${m.kw.slice(0,3).join(' · ')}</div>` : '';
-      const bubbleClass = m.isDebate ? 'bbl ai deb' : 'bbl ai';
-      const mtagClass = m.isDebate ? 'mtag deb' : 'mtag';
-
-      let actionsHtml = '';
-      if(!m.isDebate) {
-        const upActive = S.feedbackStates[`${m.id}-up`] ? 'active-up' : '';
-        const downActive = S.feedbackStates[`${m.id}-down`] ? 'active' : '';
-        const cleanRaw = m.rawOrigUserTxt ? m.rawOrigUserTxt.replace(/'/g, "\\'") : '';
-        const cleanTopic = m.boundTopic ? m.boundTopic.replace(/'/g, "\\'") : '';
-        const cleanRolesJson = m.boundRoles ? m.boundRoles.replace(/'/g, "\\'") : '[]';
-        actionsHtml = `
-          <div class="action-bar">
-            <button class="act-btn" onclick="handleCopy(\`${m.content}\`)">📋 复制</button>
-            <button class="act-btn" onclick="handleShare()">🔗 分享</button>
-            <button class="act-btn ${upActive}" onclick="handleRate('${m.id}', 'up')">👍</button>
-            <button class="act-btn ${downActive}" onclick="handleRate('${m.id}', 'down')">👎</button>
-            <button class="act-btn" style="margin-left:auto;color:#38bdf8" onclick="triggerReplay('${cleanRaw}', '${cleanTopic}', '${cleanRolesJson}')">🔄 重新来过</button>
-          </div>
-        `;
-      }
-
-      return `<div class="msgrow"><div class="av">${m.isDebate?'💬':'🏆'}</div><div class="${bubbleClass}">
-        <div class="mmeta"><span class="${mtagClass}">${m.aiName}</span><span style="font-size:10px;color:#475569">${m.roleName}</span><span class="mts">${m.ts}</span></div>
-        ${renderContent(m.content)}${kwtags}${actionsHtml}</div></div>`;
+      if(m.role === 'error') return '<div class="msgrow"><div class="av">⚠</div><div class="bbl er">' + m.content + '</div></div>';
+      var kwtags = (m.kw && m.kw.length > 0) ? '<div class="memtag">🧠 共识 · ' + m.kw.slice(0,3).join(' · ') + '</div>' : '';
+      return '<div class="msgrow"><div class="av">' + (m.isDebate?'💬':'🏆') + '</div><div class="' + (m.isDebate ? 'bbl ai deb' : 'bbl ai') + '"><div class="mmeta"><span class="' + (m.isDebate ? 'mtag deb' : 'mtag') + '">' + m.aiName + '</span><span style="font-size:10px;color:#475569">' + m.roleName + '</span><span class="mts">' + m.ts + '</span></div>' + renderContent(m.content) + kwtags + '</div></div>';
     }).join('');
-    
     if(S.loading) {
-      msgsHtml += `<div class="msgrow"><div class="av">✨</div><div class="bbl ai" style="border-color:#f59e0b"><div class="typing"><i></i><i></i><i></i><span class="ttxt">✨ 助您成神中... [${S.currentSpeaker}]</span></div></div></div>`;
+      msgsHtml += '<div class="msgrow"><div class="av">✨</div><div class="bbl ai" style="border-color:#f59e0b"><div class="typing"><i></i><i></i><i></i><span class="ttxt">✨ 联合会审中... ['+S.currentSpeaker+']</span></div></div></div>';
     }
   }
 
-  const setMemHtml = S.mems.length === 0
-    ? '<div style="font-size:11px;color:#475569;text-align:center;padding:10px 0">暂无会议纪要 · 辩论收敛后将自动沉淀</div>'
-    : S.mems.map(m => `<div class="memitem"><span>[${m.time}]</span> ${m.text}</div>`).join('');
+  // 管理控制面视图逻辑 (区分管理员权限)
+  var adminPanelHtml = '';
+  if(!S.isAdmin) {
+    adminPanelHtml = '<div class="addbox"><div style="font-size:11px;color:#ef4444;margin-bottom:6px;font-weight:700">🔒 锁定区：管理员永久接口舱</div>' +
+      '<div class="setrow"><span class="setname">管理员账号</span><input class="setinput" id="admin_user" value="gks"></div>' +
+      '<div class="setrow"><span class="setname">专属密码</span><input class="setinput" type="password" id="admin_pass" placeholder="请输入管理员密码"></div>' +
+      '<button class="addbtn" style="background:#f59e0b" onclick="handleAdminLogin()">验证登录管理员</button></div>';
+  } else {
+    adminPanelHtml = '<div class="addbox" style="border-color:#34d399;"><div style="font-size:11px;color:#34d399;margin-bottom:6px;font-weight:700">🔓 管理员已就位 (代码永久席位提示)</div>' +
+      '<div style="font-size:11px;color:#64748b;line-height:1.5;margin-bottom:6px">如需无条件永久绑定AI，请长久保存此文件，并直接使用编辑器修改代码开头的 <b>GLOBAL_CORE_AIS</b> 常量区数组。不论如何换设备清理缓存均永不失效！</div></div>';
+  }
 
-  const setHtml = S.showSet ? `<div class="overlay" id="setOverlay" onclick="if(event.target===this){S.showSet=false;render();}">
-    <div class="setbox">
-      <div class="settitle">🧠 工控神录 · 终极会议共识库 (${S.mems.length}/999)</div>
-      <div class="setmempanel">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;color:#64748b">已扩容至最高999条高价值账目：</span>
-          ${S.mems.length > 0 ? `<button class="memclear" onclick="S.mems=[];localStorage.removeItem('gkcsn_m');toast('🗑 纪要库已清空');render();">清空全部</button>` : ''}
-        </div>
-        <div class="setmemlist">${setMemHtml}</div>
-      </div>
+  var setHtml = S.showSet ? '<div class="overlay" id="setOverlay" onclick="if(event.target===this){S.showSet=false;render();}"><div class="setbox">' +
+    '<div class="settitle">🧠 会议共识历史库 ('+S.mems.length+'/999)</div>' +
+    '<div style="max-height:100px;overflow-y:auto;background:rgba(0,0,0,0.2);padding:6px;border-radius:6px;font-size:11px">' +
+      (S.mems.length===0?'暂无纪要':S.mems.map(function(m){return '<div style="margin-bottom:3px;color:#94a3b8">'+m.text+'</div>';}).join('')) +
+    '</div>' +
+    adminPanelHtml +
+    '<div class="settitle" style="margin-top:14px">⚙️ 本地/临时席位管理</div>' +
+    '<div style="max-height:100px;overflow-y:auto;margin-bottom:6px;">' +
+      GLOBAL_CORE_AIS.map(function(ai){ return '<div class="setrow" style="background:rgba(52,211,153,0.03);padding:4px;border-radius:4px;border:1px solid rgba(52,211,153,0.2)"><div style="font-size:11px;color:#34d399;flex:1">👑 '+ai.name+' (永久有效)</div></div>'; }).join('') +
+      S.customAis.map(function(ai, idx){ return '<div class="setrow" style="background:rgba(255,255,255,0.02);padding:4px;border-radius:4px;border:1px solid #1e293b"><div style="font-size:11px;color:#38bdf8;flex:1">⚡ '+ai.name+'</div><button class="setdel" onclick="deleteAi('+idx+', event)">丢弃</button></div>'; }).join('') +
+    '</div>' +
+    '<div class="addbox"><div style="font-size:11px;color:#38bdf8;margin-bottom:4px;font-weight:700">➕ 临时接入新节点</div>' +
+    '<input class="setinput" id="new_name" placeholder="节点名" style="margin-bottom:4px;display:block;width:100%">' +
+    '<input class="setinput" id="new_url" placeholder="API EndPoint URL" style="margin-bottom:4px;display:block;width:100%">' +
+    '<input class="setinput" id="new_mname" placeholder="模型代码,如 deepseek-chat" style="margin-bottom:4px;display:block;width:100%">' +
+    '<input class="setinput" type="password" id="new_key" placeholder="API KEY 密钥" style="margin-bottom:4px;display:block;width:100%">' +
+    '<select id="new_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="openai">OpenAI 规范</option><option value="gemini">Gemini 原生</option></select>' +
+    '<button class="addbtn" onclick="addNewAi()">允许入席</button></div>' +
+    '<button class="setclose" onclick="S.showSet=false;render()">关闭控制舱</button></div></div>' : '';
 
-      <div class="settitle" style="margin-top:14px">⚙️ 席位管理 (有Key节点自动入席)</div>
-      <div style="max-height:140px;overflow-y:auto;margin-bottom:6px;">
-        ${S.customAis.map((ai, idx) => `<div class="setrow" style="background:rgba(255,255,255,0.02);padding:6px;border-radius:6px;border:1px solid #1e293b;margin-bottom:5px">
-          <div style="flex:1; overflow:hidden">
-            <div style="font-weight:700;font-size:12px;color:#38bdf8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ai.name} <span style="font-size:9px;color:#475569;font-weight:normal">(${ai.modelName||'default'})</span></div>
-          </div>
-          <input class="setinput" type="password" style="max-width:80px;margin:0 4px" placeholder="${ai.key?'●●●●已配':'未配Key'}" onchange="if(this.value){S.customAis[${idx}].key=this.value.trim();saveCustomAis();toast('席位Key已就位')}">
-          <button class="setdel" onclick="deleteAi(${idx}, event)">撤席</button>
-        </div>`).join('')}
-      </div>
+  var oldVal = (document.getElementById('mInp') && document.getElementById('mInp').value) || S.inp;
+  var oldTopic = (document.getElementById('tInp') && document.getElementById('tInp').value) || S.customTopic;
 
-      <div class="addbox">
-        <div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700">➕ 邀请新 AI 教授入席圆桌</div>
-        <div class="setrow"><span class="setname">AI 别称</span><input class="setinput" id="new_name" placeholder="如：我的本地大模型"></div>
-        <div class="setrow"><span class="setname">API URL</span><input class="setinput" id="new_url" placeholder="请求端点"></div>
-        <div class="setrow"><span class="setname">模型代码</span><input class="setinput" id="new_mname" placeholder="如 deepseek-chat"></div>
-        <div class="setrow"><span class="setname">API Key</span><input class="setinput" type="password" id="new_key" placeholder="输入密钥 KEY"></div>
-        <div class="setrow">
-          <span class="setname">协议规范</span>
-          <select id="new_type" class="setinput" style="background:#0a0f1a;color:#fff">
-            <option value="openai">OpenAI 兼容</option>
-            <option value="gemini">Gemini 原生</option>
-          </select>
-        </div>
-        <button class="addbtn" onclick="addNewAi()">准 许 入 席</button>
-      </div>
+  document.getElementById('app').innerHTML = (S.toast ? '<div class="toast">' + S.toast + '</div>' : '') +
+    '<header><div class="logo">工控神录</div><div class="hdr"><button class="hbtn" onclick="S.msgs=[];toast(\'会议清理成功\')">清空</button><button class="hbtn '+(S.showSet?'on':'')+'" onclick="S.showSet=!S.showSet;render()">⚙ 管理面</button></div></header>' +
+    '<div class="ctrlbar"><div class="topic-wrapper"><input id="tInp" class="topic-input" type="text" placeholder="✍️ 主导议题..." oninput="S.customTopic=this.value">' +
+    '<button class="topic-clear" onclick="S.customTopic=\'\';document.getElementById(\'tInp\').value=\'\';toast(\'已复位\');render();">❌</button></div><div class="sep"></div>' +
+    ROLES.map(function(r) { return '<button class="chip '+(S.activeRoleIds.indexOf(r.id)>-1?'cg':'')+'" onclick="toggleRole(\''+r.id+'\')">' + r.icon + ' ' + r.name + '</button>'; }).join('') +
+    '</div><main id="chatMain">' + msgsHtml + '<div id="end"></div></main>' +
+    '<footer><div class="inputrow"><textarea id="mInp" rows="2" placeholder="输入突发工业故障..." oninput="S.inp=this.value"></textarea>' +
+    '<button class="sendbtn" onclick="send()" '+(S.loading?'disabled':'')+'>'+(S.loading?'⏳':'CONVENE')+'</button></div></footer>' + setHtml;
 
-      <button class="setclose" onclick="S.showSet=false;render()">关闭控制舱</button>
-    </div></div>` : '';      
-
-  const oldVal = document.getElementById('mInp')?.value || S.inp;
-  const oldTopic = document.getElementById('tInp')?.value || S.customTopic;
-
-  document.getElementById('app').innerHTML = `
-    ${S.toast ? `<div class="toast">${S.toast}</div>` : ''}
-    <header>
-      <div class="logo">工控神录</div>
-      <div class="hdr">
-        <button class="hbtn" onclick="S.msgs=[];toast('🗑 当前会议区已完全清空')">清空</button>
-        <button class="hbtn ${S.showSet?'on':''}" onclick="S.showSet=!S.showSet;render()">⚙ 管理面</button>
-      </div>
-    </header>
-    <div class="ctrlbar">
-      <div class="topic-wrapper">
-        <input id="tInp" class="topic-input" type="text" placeholder="✍️ 主导议题..." oninput="S.customTopic=this.value" title="输入特定技术栈强制带节奏">
-        <button class="topic-clear" onclick="S.customTopic='';document.getElementById('tInp').value='';toast('🧹 议题已清除，恢复默认');render();" title="清空主导议题">❌</button>
-      </div>
-      <div class="sep"></div>
-      ${ROLES.map(r => {
-        const isLight = S.activeRoleIds.includes(r.id);
-        return `<button class="chip ${isLight?'cg':''}" onclick="toggleRole('${r.id}')">${r.icon} ${r.name}</button>`;
-      }).join('')}
-    </div>
-    <main id="chatMain">${msgsHtml}<div id="end"></div></main>
-    <footer>
-      <div class="inputrow">
-        <textarea id="mInp" rows="2" placeholder="投递突发工业故障到圆桌..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}" oninput="S.inp=this.value"></textarea>
-        <button class="sendbtn" onclick="send()" ${S.loading?'disabled':''}>${S.loading?'⏳':'CONVENE'}</button>
-      </div>
-      <div class="hint">长按或双击用户气泡可快捷“重新来过” · 芯片多选可进行交叉复合诊断</div>
-    </footer>
-    ${setHtml}`;
-
-  const ta = document.getElementById('mInp');
-  if(ta) { ta.value = oldVal; if(!oldVal && S.msgs.length > 0) ta.focus(); }
-  const ti = document.getElementById('tInp');
-  if(ti) { ti.value = oldTopic; }
-  
+  var ta = document.getElementById('mInp'); if(ta) { ta.value = oldVal; }
+  var ti = document.getElementById('tInp'); if(ti) { ti.value = oldTopic; }
   updateStage3D();
-  scrollEnd();
 }
 
-setInterval(() => {
-  S.angle += 0.025; 
-  updateStage3D();
-}, 30);
-
+setInterval(function() { S.angle += 0.025; updateStage3D(); }, 30);
 render();
 </script>
 </body>
