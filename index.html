@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>工控成神录</title>
+<title>工控成神录 - 圆桌会议版</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#090d16;color:#cbd5e1;font-family:Consolas,Monaco,'Courier New',monospace;font-size:13px;height:100dvh;overflow:hidden}
@@ -25,7 +25,6 @@ main{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:
 main::-webkit-scrollbar{width:3px}
 main::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
 
-/* 3D 动态收缩环绕舞台 */
 .welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;padding:30px 16px;text-align:center;position:relative}
 .stage3d{width:240px;height:180px;position:relative;display:flex;align-items:center;justify-content:center;perspective:1000px}
 .wcat{font-size:54px;position:absolute;z-index:10;user-select:none}
@@ -39,9 +38,11 @@ main::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
 .bbl{max-width:82%;padding:9px 12px;border-radius:10px;line-height:1.6;word-break:break-word;font-size:13px}
 .bbl.u{background:#f59e0b;color:#020617;font-weight:600;border-radius:10px 10px 0 10px}
 .bbl.ai{background:#0f172a;border:1px solid #1e293b;color:#e2e8f0;border-radius:10px 10px 10px 0}
+.bbl.deb{background:#09111e;border:1px dashed #38bdf8;color:#93c5fd;border-radius:10px}
 .bbl.er{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:10px 10px 10px 0}
 .mmeta{display:flex;gap:5px;align-items:center;margin-bottom:5px;flex-wrap:wrap}
 .mtag{font-size:10px;padding:1px 6px;border-radius:3px;font-family:Consolas,monospace;background:rgba(245,158,11,0.12);color:#f59e0b}
+.mtag.deb{background:rgba(56,189,248,0.15);color:#38bdf8}
 .mts{font-size:10px;color:#334155;margin-left:auto}
 .mtr{font-size:10px;color:#334155;text-align:right;margin-top:3px}
 .codeblock{background:#020617;border:1px solid rgba(56,189,248,0.12);border-radius:7px;margin:7px 0;overflow:hidden}
@@ -51,10 +52,10 @@ main::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
 pre{margin:0;padding:9px 11px;font-size:12px;overflow-x:auto;color:#86efac;line-height:1.55}
 .memtag{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:1px 7px;background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:8px;color:#34d399;margin-top:5px}
 .typing{display:flex;align-items:center;gap:4px;padding:2px 0}
-.typing i{width:6px;height:6px;border-radius:50%;background:#f59e0b;opacity:.4;animation:blink 1.1s infinite;font-style:normal}
+.typing i{width:6px;height:6px;border-radius:50%;background:#38bdf8;opacity:.4;animation:blink 1.1s infinite;font-style:normal}
 .typing i:nth-child(2){animation-delay:.2s}
 .typing i:nth-child(3){animation-delay:.4s}
-.ttxt{font-size:11px;color:#334155;margin-left:5px}
+.ttxt{font-size:11px;color:#64748b;margin-left:5px}
 @keyframes blink{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
 footer{padding:10px 12px 12px;border-top:1px solid #1e293b;background:rgba(9,13,22,0.98);flex-shrink:0}
 .inputrow{display:flex;gap:7px;align-items:flex-end}
@@ -65,7 +66,6 @@ textarea:focus{border-color:rgba(245,158,11,0.5)}
 .sendbtn:not(:disabled):hover{background:#fbbf24;box-shadow:0 0 12px rgba(245,158,11,0.4)}
 .hint{font-size:10px;color:#1e293b;margin-top:5px;text-align:center}
 
-/* 设置面超强面板 */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:15px}
 .setbox{background:#0f172a;border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:16px;width:100%;max-width:400px;max-height:90dvh;overflow-y:auto}
 .settitle{font-size:12px;color:#f59e0b;font-weight:700;letter-spacing:2px;margin-bottom:10px;border-bottom:1px solid rgba(245,158,11,0.15);padding-bottom:3px}
@@ -94,11 +94,10 @@ const ROLES=[
   {id:'comm',icon:'🔗',name:'通信调试',prompt:'核心任务：工业通信（Profinet/EtherCAT/Modbus）。给出具体配置参数、IP/站号设置、排查步骤。'}
 ];
 
-const PERSONA_CAT=`你是《工控成神录》AI副驾驶，代号"黑猫特工"。人设：高冷理性、一针见血。核心要求：每次回答必须极其精炼，严禁超过300字，严禁说任何客套废话！`;
+const PERSONA_CAT=`你是《工控成神录》AI副驾驶，代号"黑猫特工"。人设：高冷理性、一针见血。核心要求：每次回答必须极其精炼，严禁超过250字，严禁说任何客套废话！`;
 const KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧姆龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
 const extractKW=t=>KWS.filter(k=>t.includes(k));
 
-// 安全的本地数据恢复
 let savedAis = [];
 try {
   const localData = localStorage.getItem('gkcsn_custom_ais');
@@ -130,7 +129,8 @@ let S = {
   activeAiIdx: 0,
   customAis: savedAis,
   mems: savedMems,
-  angle: 0
+  angle: 0,
+  currentSpeaker: '' // 当前正在思考的AI别称
 };
 
 const saveCustomAis = () => localStorage.setItem('gkcsn_custom_ais', JSON.stringify(S.customAis));
@@ -144,7 +144,7 @@ function toast(msg){
 }
 
 async function requestAi(ai, sys, hist, msg) {
-  if(!ai.key) throw new Error('未配置该 AI 的 API Key，请在设置中填写！');
+  if(!ai.key) throw new Error(`未配置 [${ai.name}] 的 API Key，请在管理面填写！`);
   if(ai.type === 'gemini' || ai.url.includes('generativelanguage.googleapis.com')) {
     const contents = [];
     hist.forEach(m => contents.push({role: m.role==='user'?'user':'model', parts:[{text: m.content}]}));
@@ -157,12 +157,12 @@ async function requestAi(ai, sys, hist, msg) {
       body: JSON.stringify({
         system_instruction: {parts: [{text: sys}]},
         contents,
-        generationConfig: {maxOutputTokens: 1024, temperature: 0.5}
+        generationConfig: {maxOutputTokens: 800, temperature: 0.4}
       })
     });
     if(!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e?.error?.message || 'HTTP ' + r.status); }
     const d = await r.json();
-    return d.candidates?.[0]?.content?.parts?.[0]?.text || '（无返回内容）';
+    return d.candidates?.[0]?.content?.parts?.[0]?.text || '（无法解析Gemini返回内容）';
   } else {
     const messages = [{role: 'system', content: sys}];
     hist.forEach(m => messages.push({role: m.role==='user'?'user':'assistant', content: m.content}));
@@ -176,13 +176,13 @@ async function requestAi(ai, sys, hist, msg) {
       body: JSON.stringify({
         model: ai.modelName || 'default',
         messages,
-        max_tokens: 1024,
-        temperature: 0.5
+        max_tokens: 800,
+        temperature: 0.4
       })
     });
     if(!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e?.error?.message || 'HTTP ' + r.status); }
     const d = await r.json();
-    return d.choices?.[0]?.message?.content || '（无返回内容）';
+    return d.choices?.[0]?.message?.content || '（无法解析OpenAI返回内容）';
   }
 }
 
@@ -190,7 +190,7 @@ function buildSys(q){
   let sys = PERSONA_CAT + '\n\n' + S.role.prompt;
   const rel = S.mems.filter(m => extractKW(q).some(k => m.text.includes(k))).slice(0,3);
   if(rel.length > 0) {
-    sys += '\n\n【历史经验记忆】\n';
+    sys += '\n\n【历史经验记忆底账】\n';
     rel.forEach(m => { sys += `• [${m.time}] ${m.text}\n`; });
   }
   return sys;
@@ -215,33 +215,115 @@ function cpCode(btn, b64){
 
 function scrollEnd(){ setTimeout(() => { const m = document.querySelector('main'); if(m) m.scrollTop = m.scrollHeight; }, 50); }
 
+// 【核心圆桌调度引擎】
 async function send(){
   const text = S.inp.trim();
   if(!text || S.loading) return;
-  const currentAi = S.customAis[S.activeAiIdx];
-  if(!currentAi) { toast('⚠️ 请先在设置里添加或选择 AI'); return; }
+
+  // 1. 过滤有 Key 的活跃 AI
+  const activeAis = S.customAis.filter(ai => ai.key.length > 0);
+  if(activeAis.length === 0) {
+    toast('⚠️ 未检测到已配置 Key 的 AI 接口！请前往管理面配置。');
+    return;
+  }
+
   S.msgs.push({role: 'user', content: text, ts: now2()});
   S.inp = ''; S.loading = true; 
   const ta = document.getElementById('mInp');
   if(ta) ta.value = '';
   render(); scrollEnd();
+
+  // 2. 建立共享“圆桌资料”缓冲区
+  let roundTableLog = `【主诉问题】：${text}\n\n`;
+  let finalSolution = "";
+  let debateRound = 1;
+  const maxRounds = 3; // 设定辩论上限，防止刷爆额度
+  let consensusReached = false;
+
   try {
-    const hist = S.msgs.slice(-11, -1).filter(m => m.role==='user' || m.role==='assistant');
-    const reply = await requestAi(currentAi, buildSys(text), hist, text);
-    const kw = extractKW(text + reply);
-    S.msgs.push({role: 'assistant', content: reply, aiName: currentAi.name, roleName: S.role.name, ts: now2(), kw});
+    // 循环展开辩论，直到所有 AI 达成共识或到最大轮数
+    while(debateRound <= maxRounds && !consensusReached) {
+      let roundAgreements = 0;
+
+      for(let i=0; i < activeAis.length; i++) {
+        const currentAi = activeAis[i];
+        S.currentSpeaker = `${currentAi.name} (第${debateRound}轮发言)`;
+        render(); scrollEnd();
+
+        // 构造圆桌指令
+        let promptForAi = `这里有一份【圆桌共享资料】，请认真审阅：\n${roundTableLog}\n`;
+        if (debateRound === 1 && i === 0) {
+          promptForAi += `作为首位发言者，请针对该工控场景直接给出初始诊断与解决方案。`;
+        } else {
+          promptForAi += `请审阅上方其他 AI 的先前意见。如果你完全同意上述方案且无任何补充，必须在开头回复“【完全同意，达成共识】”；如果有不同见解、漏洞补充或优化算法，请直接指出并给出你的修正方案。`;
+        }
+
+        const reply = await requestAi(currentAi, buildSys(text), [], promptForAi);
+        
+        // 判定共识标志
+        const isAgree = reply.includes('完全同意') || reply.includes('达成共识');
+        if(isAgree) roundAgreements++;
+
+        // 记录到圆桌日志
+        roundTableLog += `▶ [${currentAi.name} · 意见]: ${reply}\n\n`;
+        
+        // 推送到前端 UI 进行辩论实时展示
+        S.msgs.push({
+          role: 'assistant',
+          isDebate: true, // 标记为辩论中间体
+          content: reply,
+          aiName: `${currentAi.name} [R${debateRound}]`,
+          roleName: isAgree ? '🟢 赞同共识' : '⚡ 审议修正',
+          ts: now2()
+        });
+        render(); scrollEnd();
+        
+        // 保留最后一个不选择放弃的 AI 作为最终输出的基础内容
+        if(!isAgree || !finalSolution) {
+          finalSolution = reply;
+        }
+      }
+
+      // 如果本轮所有人都投了赞成票，或者只有一个 AI 参加且完成首轮，提前判定共识达成
+      if(roundAgreements === activeAis.length || activeAis.length === 1) {
+        consensusReached = true;
+      } else {
+        debateRound++;
+      }
+    }
+
+    // 3. 辩论闭环，提炼最终解决方案
+    S.currentSpeaker = "正在签署终极共识...";
+    render();
+
+    const kw = extractKW(text + finalSolution);
+    S.msgs.push({
+      role: 'assistant',
+      isDebate: false, // 最终结论
+      content: `🏆 【圆桌会议达成共识 · 最终执行方案】\n\n经过 ${debateRound - 1} 轮交叉质检辩论，多机联合决议如下：\n\n${finalSolution}`,
+      aiName: '圆桌联合会议',
+      roleName: '终极方案',
+      ts: now2(),
+      kw
+    });
+
+    // 4. 将博弈结果持久化至工控经验记忆库
     const mem = {
       id: Date.now(),
       time: nowF(),
-      text: `[${S.role.name}] 问:${text.slice(0,25)}… 答:${reply.slice(0,45)}…`,
+      text: `[圆桌决议] 问:${text.slice(0,20)}… 结案:${finalSolution.slice(0,50)}…`,
       kw
     };
     S.mems = [mem, ...S.mems].slice(0, 50);
     saveMems();
+
   } catch(e) {
-    S.msgs.push({role: 'error', content: '❌ ' + e.message, ts: now2()});
+    S.msgs.push({role: 'error', content: '❌ 圆桌通信中断: ' + e.message, ts: now2()});
   }
-  S.loading = false; render(); scrollEnd();
+
+  S.loading = false;
+  S.currentSpeaker = '';
+  render(); scrollEnd();
 }
 
 function addNewAi() {
@@ -253,7 +335,7 @@ function addNewAi() {
   if(!name || !url || !key) { alert('请将名称、接口地址和Key填写完整！'); return; }
   S.customAis.push({ name, url, key, modelName: mName, type });
   saveCustomAis();
-  toast('✅ 成功添加新 AI 接口');
+  toast('✅ 成功加入圆桌席位');
   render();
 }
 
@@ -270,24 +352,24 @@ function updateStage3D() {
   const stage = document.getElementById('dynamicStage3D');
   if(!stage) return;
   let orbitHtml = '';
-  const aiCount = S.customAis.length;
+  const activeCount = S.customAis.length;
   S.customAis.forEach((ai, idx) => {
-    const personalAngle = S.angle + (idx * (Math.PI * 2 / aiCount));
-    const rx = 80; 
-    const ry = 30; 
+    const personalAngle = S.angle + (idx * (Math.PI * 2 / activeCount));
+    const rx = 85; 
+    const ry = 35; 
     const x = Math.cos(personalAngle) * rx;
     const y = Math.sin(personalAngle) * ry;
     
     const sinNorm = Math.sin(personalAngle);
-    const scale = 0.7 + (sinNorm + 1) * 0.25; 
-    const opacity = 0.4 + (sinNorm + 1) * 0.3; 
+    const scale = 0.72 + (sinNorm + 1) * 0.23; 
+    const opacity = ai.key ? (0.5 + (sinNorm + 1) * 0.3) : 0.2; 
     const zIndex = Math.floor((sinNorm + 1) * 10);
 
-    orbitHtml += `<div class="orbit-ai" style="transform: translate3d(${x}px, ${y}px, 0px) scale(${scale}); opacity: ${opacity}; z-index: ${zIndex};">
-      ● ${ai.name}
+    orbitHtml += `<div class="orbit-ai" style="transform: translate3d(${x}px, ${y}px, 0px) scale(${scale}); opacity: ${opacity}; z-index: ${zIndex}; ${ai.key?'border-color:#f59e0b;color:#f8fafc':''}">
+      ${ai.key ? '⚡' : '⚪'} ${ai.name}
     </div>`;
   });
-  stage.innerHTML = `<div class="wcat">🐱</div>${orbitHtml}`;
+  stage.innerHTML = `<div class="wcat" style="text-shadow: 0 0 15px rgba(245,158,11,0.5)">🐱</div>${orbitHtml}`;
 }
 
 function render(){
@@ -295,66 +377,72 @@ function render(){
   if(S.msgs.length === 0) {
     msgsHtml = `<div class="welcome">
       <div class="stage3d" id="dynamicStage3D"></div>
-      <div class="wtitle">工控成神录 <span>CORE</span></div>
-      <div class="wdesc">驱动引擎：${S.customAis[S.activeAiIdx]?.name || '未添加'} · 模式：${S.role.name}</div>
+      <div class="wtitle">工控成神录 <span>ROUNDTABLE</span></div>
+      <div class="wdesc">圆桌就绪：已激活 ${S.customAis.filter(a=>a.key).length} 个分布式AI控制节点</div>
     </div>`;
   } else {
-    const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     msgsHtml = S.msgs.map(m => {
-      if(m.role === 'user') return `<div class="msgrow u"><div class="bbl u">${esc(m.content)}<div class="mtr">${m.ts}</div></div></div>`;
+      if(m.role === 'user') return `<div class="msgrow u"><div class="bbl u">${m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}<div class="mtr">${m.ts}</div></div></div>`;
       if(m.role === 'error') return `<div class="msgrow"><div class="av">⚠</div><div class="bbl er">${m.content}</div></div>`;
-      const kwtags = m.kw?.length > 0 ? `<div class="memtag">🧠 ${m.kw.slice(0,3).join(' · ')}</div>` : '';
-      return `<div class="msgrow"><div class="av">🤖</div><div class="bbl ai">
-        <div class="mmeta"><span class="mtag">${m.aiName}</span><span style="font-size:10px;color:#475569">${m.roleName}</span><span class="mts">${m.ts}</span></div>
+      
+      const kwtags = m.kw?.length > 0 ? `<div class="memtag">🧠 共识记忆驱动 · ${m.kw.slice(0,3).join(' · ')}</div>` : '';
+      const bubbleClass = m.isDebate ? 'bbl ai deb' : 'bbl ai';
+      const mtagClass = m.isDebate ? 'mtag deb' : 'mtag';
+
+      return `<div class="msgrow"><div class="av">${m.isDebate?'💬':'🏆'}</div><div class="${bubbleClass}">
+        <div class="mmeta"><span class="${mtagClass}">${m.aiName}</span><span style="font-size:10px;color:#475569">${m.roleName}</span><span class="mts">${m.ts}</span></div>
         ${renderContent(m.content)}${kwtags}</div></div>`;
     }).join('');
-    if(S.loading) msgsHtml += `<div class="msgrow"><div class="av">⏳</div><div class="bbl ai"><div class="typing"><i></i><i></i><i></i><span class="ttxt">正在全力提炼最优解...</span></div></div></div>`;
+    
+    if(S.loading) {
+      msgsHtml += `<div class="msgrow"><div class="av">⏳</div><div class="bbl ai" style="border-color:#38bdf8"><div class="typing"><i></i><i></i><i></i><span class="ttxt" style="color:#38bdf8;font-weight:700">圆桌会议席：[${S.currentSpeaker}] 正在切片审查资料...</span></div></div></div>`;
+    }
   }
 
   const setMemHtml = S.mems.length === 0
-    ? '<div style="font-size:11px;color:#475569;text-align:center;padding:10px 0">暂无经验记忆 · 现场实战后将自动沉淀</div>'
+    ? '<div style="font-size:11px;color:#475569;text-align:center;padding:10px 0">暂无会议纪要 · 辩论收敛后将自动沉淀</div>'
     : S.mems.map(m => `<div class="memitem"><span>[${m.time}]</span> ${m.text}</div>`).join('');
 
   const setHtml = S.showSet ? `<div class="overlay" id="setOverlay" onclick="if(event.target===this){S.showSet=false;render();}">
     <div class="setbox">
-      <div class="settitle">🧠 工控成神录 · 知识记忆库 (${S.mems.length}/50)</div>
+      <div class="settitle">🧠 工控成神录 · 终极会议共识库 (${S.mems.length}/50)</div>
       <div class="setmempanel">
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;color:#64748b">已自动锁定的实战硬核数据：</span>
-          ${S.mems.length > 0 ? `<button class="memclear" onclick="S.mems=[];localStorage.removeItem('gkcsn_m');toast('🗑 记忆库已清空');render();">清空全部</button>` : ''}
+          <span style="font-size:11px;color:#64748b">圆桌会议沉淀出的高价值账目：</span>
+          ${S.mems.length > 0 ? `<button class="memclear" onclick="S.mems=[];localStorage.removeItem('gkcsn_m');toast('🗑 纪要库已清空');render();">清空全部</button>` : ''}
         </div>
         <div class="setmemlist">${setMemHtml}</div>
       </div>
 
-      <div class="settitle" style="margin-top:14px">⚙️ AI 自由 API 接口管理</div>
+      <div class="settitle" style="margin-top:14px">⚙️ 席位管理 (只有配置了Key的AI才会参与圆桌辩论)</div>
       <div style="max-height:160px;overflow-y:auto;margin-bottom:6px;">
         ${S.customAis.map((ai, idx) => `<div class="setrow" style="background:rgba(255,255,255,0.02);padding:6px;border-radius:6px;border:1px solid #1e293b;margin-bottom:5px">
           <div style="flex:1; overflow:hidden">
             <div style="font-weight:700;font-size:12px;color:#38bdf8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ai.name} <span style="font-size:9px;color:#475569;font-weight:normal">(${ai.modelName||'default'})</span></div>
             <div style="font-size:9px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">${ai.url}</div>
           </div>
-          <input class="setinput" type="password" style="max-width:80px;margin:0 4px" placeholder="${ai.key?'●●●●已配':'未配Key'}" onchange="if(this.value){S.customAis[${idx}].key=this.value.trim();saveCustomAis();toast('Key已就位')}">
-          <button class="setdel" onclick="deleteAi(${idx}, event)">删除</button>
+          <input class="setinput" type="password" style="max-width:80px;margin:0 4px" placeholder="${ai.key?'●●●●已配':'未配Key'}" onchange="if(this.value){S.customAis[${idx}].key=this.value.trim();saveCustomAis();toast('席位Key已就位')}">
+          <button class="setdel" onclick="deleteAi(${idx}, event)">撤席</button>
         </div>`).join('')}
       </div>
 
       <div class="addbox">
-        <div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700">➕ 接入新自定义 AI 引擎</div>
-        <div class="setrow"><span class="setname">AI 别称</span><input class="setinput" id="new_name" placeholder="如：我的 DeepSeek"></div>
+        <div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700">➕ 邀请新 AI 教授入席圆桌</div>
+        <div class="setrow"><span class="setname">AI 别称</span><input class="setinput" id="new_name" placeholder="如：本地大模型"></div>
         <div class="setrow"><span class="setname">API URL</span><input class="setinput" id="new_url" placeholder="完整 https://... 请求端点"></div>
         <div class="setrow"><span class="setname">模型代码</span><input class="setinput" id="new_mname" placeholder="如 deepseek-chat (选填)"></div>
-        <div class="setrow"><span class="setname">API Key</span><input class="setinput" type="password" id="new_key" placeholder="粘贴密钥 KEY"></div>
+        <div class="setrow"><span class="setname">API Key</span><input class="setinput" type="password" id="new_key" placeholder="输入密钥 KEY"></div>
         <div class="setrow">
-          <span class="setname">解析协议</span>
+          <span class="setname">协议规范</span>
           <select id="new_type" class="setinput" style="background:#0a0f1a;color:#fff">
-            <option value="openai">OpenAI 兼容规范 (DeepSeek/各中转)</option>
+            <option value="openai">OpenAI 兼容规范</option>
             <option value="gemini">Google Gemini 原生规范</option>
           </select>
         </div>
-        <button class="addbtn" onclick="addNewAi()">确 认 天 降 模 型</button>
+        <button class="addbtn" onclick="addNewAi()">准 许 入 席</button>
       </div>
 
-      <button class="setclose" onclick="S.showSet=false;render()">保存并关闭</button>
+      <button class="setclose" onclick="S.showSet=false;render()">保存并关闭会议室</button>
     </div></div>` : '';      
 
   const oldVal = document.getElementById('mInp')?.value || S.inp;
@@ -362,24 +450,23 @@ function render(){
   document.getElementById('app').innerHTML = `
     ${S.toast ? `<div class="toast">${S.toast}</div>` : ''}
     <header>
-      <div class="logo">工控成神录 <span>CORE</span></div>
+      <div class="logo">工控成神录 <span>辩论圆桌</span></div>
       <div class="hdr">
-        <button class="hbtn" onclick="S.msgs=[];toast('🗑 已清空当前会话')">清空</button>
-        <button class="hbtn ${S.showSet?'on':''}" onclick="S.showSet=!S.showSet;render()">⚙ ⚙ 管理面</button>
+        <button class="hbtn" onclick="S.msgs=[];toast('🗑 会议记录已封存销毁')">清空</button>
+        <button class="hbtn ${S.showSet?'on':''}" onclick="S.showSet=!S.showSet;render()">⚙ 管理面</button>
       </div>
     </header>
     <div class="ctrlbar">
-      ${S.customAis.map((m, idx) => `<button class="chip ${S.activeAiIdx===idx?'on':''}" onclick="S.activeAiIdx=${idx};render()">${m.name}</button>`).join('')}
-      <div class="sep"></div>
+      <span style="font-size:11px;color:#f59e0b;padding:3px 4px;font-weight:700;white-space:nowrap">📢 议题主导:</span>
       ${ROLES.map(r => `<button class="chip ${S.role.id===r.id?'cg':''}" onclick="S.role=ROLES.find(x=>x.id==='${r.id}');render()">${r.icon} ${r.name}</button>`).join('')}
     </div>
     <main id="chatMain">${msgsHtml}<div id="end"></div></main>
     <footer>
       <div class="inputrow">
-        <textarea id="mInp" rows="2" placeholder="输入工控突发故障或控制逻辑..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}" oninput="S.inp=this.value"></textarea>
-        <button class="sendbtn" onclick="send()" ${S.loading?'disabled':''}>${S.loading?'⏳':'SEND'}</button>
+        <textarea id="mInp" rows="2" placeholder="投递工控疑难杂症到圆桌（所有已配Key的AI将联合会审）..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}" oninput="S.inp=this.value"></textarea>
+        <button class="sendbtn" onclick="send()" ${S.loading?'disabled':''}>${S.loading?'⏳':'CONVENE'}</button>
       </div>
-      <div class="hint">物理回车发送 · 自动拦截提炼硬核故障记忆</div>
+      <div class="hint">物理回车交付圆桌会审 · 多机达成共识后自动沉淀至底层记忆</div>
     </footer>
     ${setHtml}`;
 
