@@ -360,7 +360,7 @@ function updateStage3D() {
   var stage = document.getElementById('dynamicStage3D'); if(!stage) return;
   var orbitHtml = ''; var allAis = getAllActiveAis(); var activeCount = allAis.length;
   if(activeCount === 0) {
-    stage.innerHTML = '<div class="wcat">🐱</div><div style="font-size:10px;color:#64748b;position:absolute;bottom:0">快加入你的神辅助</div>';
+    stage.innerHTML = '<div class="wcat">🐯</div><div style="font-size:10px;color:#64748b;position:absolute;bottom:0">快加入你的神辅助</div>';
     return;
   }
   S.angle += 0.025;
@@ -373,7 +373,7 @@ function updateStage3D() {
     if(ai.isCore) styleStr += 'border-color:#34d399;color:#34d399;';
     orbitHtml += '<div class="orbit-ai" style="' + styleStr + '">' + (ai.isCore ? '👑 ' : '⚡ ') + ai.name + '</div>';
   });
-  stage.innerHTML = '<div class="wcat">🐱</div>' + orbitHtml;
+  stage.innerHTML = '<div class="wcat">🐯</div>' + orbitHtml;
 }
 
 function initAppStructure() {
@@ -423,10 +423,10 @@ function renderOverlay舱() {
     '<button class="addbtn" style="background:#e11d48;color:#fff;margin-top:10px;" onclick="exportNewHtmlCode()">💾 立即打包下载最新网页文件</button></div>';
 
   container.innerHTML = '<div class="overlay" id="setOverlay" onclick="if(event.target===this)toggleOverlay(false)"><div class="setbox">' +
-    '<div class="settitle">👑 永久核心席位（全开放，所有设备直接使用）</div>' +
+    '<div class="settitle"> 核心席位 </div>' +
     '<div style="max-height:100px;overflow-y:auto;margin-bottom:10px;">' + permanentListHtml + '</div>' +
     adminPanelHtml +
-    '<div class="settitle" style="margin-top:14px">⚡ 当前设备独享席位（LocalStorage 仅存留此设备）</div>' +
+    '<div class="settitle" style="margin-top:14px"> 当前设备本地部署席位 </div>' +
     '<div style="max-height:80px;overflow-y:auto;margin-bottom:6px;">' + localListHtml + '</div>' +
     '<div class="addbox"><div style="font-size:11px;color:#38bdf8;margin-bottom:4px;font-weight:700">➕ 仅塞入当前设备缓存</div><input class="setinput" id="l_name" placeholder="节点名"><input class="setinput" id="l_url" placeholder="API URL"><input class="setinput" id="l_mname" placeholder="模型代码"><input class="setinput" type="password" id="l_key" placeholder="密钥 KEY"><select id="l_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="openai">OpenAI 规范</option></select><button class="addbtn" onclick="addLocalNode()">加入此设备</button></div>' +
     '<button class="setclose" onclick="toggleOverlay(false)">关闭控制舱</button></div></div>';
