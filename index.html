@@ -80,13 +80,15 @@ textarea:focus{border-color:rgba(245,158,11,0.5)}
 .settitle{font-size:12px;color:#f59e0b;font-weight:700;letter-spacing:2px;margin-bottom:10px;border-bottom:1px solid rgba(245,158,11,0.15);padding-bottom:3px}
 .setrow{display:flex;align-items:center;gap:6px;margin-bottom:8px}
 .setname{font-size:11px;color:#64748b;width:75px;flex-shrink:0}
-.setinput{flex:1;background:rgba(255,255,255,0.04);border:1px solid #1e293b;border-radius:5px;padding:5px 8px;color:#f8fafc;font-size:11px;font-family:Consolas,monospace;outline:none}
+.setinput{flex:1;background:rgba(255,255,255,0.04);border:1px solid #1e293b;border-radius:5px;padding:5px 8px;color:#f8fafc;font-size:11px;font-family:Consolas,monospace;outline:none;margin-bottom:4px}
 .setinput:focus{border-color:#f59e0b}
 .setdel{background:none;border:1px solid rgba(239,68,68,0.4);color:#ef4444;padding:2px 6px;border-radius:4px;cursor:pointer;font-size:10px}
 .addbox{background:rgba(255,255,255,0.02);border:1px dashed #334155;border-radius:8px;padding:10px;margin-top:10px;margin-bottom:12px}
 .addbtn{width:100%;padding:6px;background:#38bdf8;color:#020617;border:none;border-radius:5px;cursor:pointer;font-weight:700;font-size:11px;margin-top:6px}
 .setclose{width:100%;padding:9px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#f59e0b;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(245,158,11,0.9);color:#020617;padding:5px 16px;border-radius:16px;font-size:11px;z-index:300;font-weight:700;white-space:nowrap}
+.quick-btn{background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:3px 6px;border-radius:4px;font-size:10px;cursor:pointer;font-family:inherit;transition:all 0.15s;margin-right:4px;margin-bottom:4px}
+.quick-btn:hover{background:#0284c7;color:#fff;border-color:#0284c7}
 </style>
 </head>
 <body>
@@ -95,9 +97,7 @@ textarea:focus{border-color:rgba(245,158,11,0.5)}
 // ====================================================================
 // 👑 永久核心 AI 接口列表（任何人点开网页直接能用，多端绝对不丢失）
 // ====================================================================
-var PERMANENT_AIS = [
-  {name: "永久-Gemini", url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=", key: "在这里直接替换你的Gemini_API_KEY", modelName: "gemini-2.0-flash", type: "gemini"}
-];
+var PERMANENT_AIS = [];
 
 var ROLES=[
   {id:'fault',icon:'⚡',name:'故障诊断',prompt:'核心任务：工控故障诊断。输出：①最可能原因（按概率降序）②具体排查步骤③寄存器/参数地址。'},
@@ -107,10 +107,10 @@ var ROLES=[
 ];
 
 var PERSONA_CAT='你是《工控神录》AI副驾驶，代号"黑猫特工"。人设：根据用户改变，变成用户喜欢的。';
-var KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧姆龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
+var KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧门龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
 var extractKW = function(t){ return KWS.filter(function(k){ return t.indexOf(k) > -1; }); };
 
-// 🛠️ 设备独享本地临时席位（保留原有机制，利用LocalStorage）
+// 🛠️ 设备独享本地临时席位
 var localTempAis = [];
 try { var lt = localStorage.getItem('gkcsn_local_ais'); if(lt) localTempAis = JSON.parse(lt); } catch(e){}
 
@@ -119,7 +119,7 @@ var S = {
   customTopic: '', 
   loading: false,
   showSet: false,
-  isAdmin: false, // 是否验证通过管理员暗号，仅用于管理核心接口
+  isAdmin: false, 
   toast: '',
   toastTimer: null,
   inp: '',
@@ -127,16 +127,11 @@ var S = {
   angle: 0
 };
 
-// 动态聚合当前就位的所有 AI 接口
 function getAllActiveAis() {
   var list = [];
-  // 1. 永久核心接口：完全开放，直接入列
   PERMANENT_AIS.forEach(function(ai){
-    if(ai.key && ai.key.length > 10 && ai.key.indexOf('在这里') === -1) {
-      list.push(Object.assign({}, ai, {isCore: true}));
-    }
+    if(ai.key && ai.key.length > 5) { list.push(Object.assign({}, ai, {isCore: true})); }
   });
-  // 2. 当前设备本地添加的临时接口
   S.localAis.forEach(function(ai){ list.push(Object.assign({}, ai, {isCore: false})); });
   return list;
 }
@@ -166,16 +161,17 @@ async function requestAi(ai, sys, msg) {
       body: JSON.stringify({
         system_instruction: {parts: [{text: sys}]},
         contents: [{role:'user', parts:[{text: msg}]}],
-        generationConfig: {maxOutputTokens: 800, temperature: 0.4}
+        generationConfig: {maxOutputTokens: 1200, temperature: 0.4}
       })
     });
     if(!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error((e && e.error && e.error.message) || 'HTTP ' + r.status); }
     var d = await r.json();
     return (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts && d.candidates[0].content.parts[0] && d.candidates[0].content.parts[0].text) || '解析失败';
   } else {
+    // 兼容所有标准 OpenAI 路由规范
     var r = await fetch(fullUrl, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ai.key },
-      body: JSON.stringify({ model: ai.modelName || 'default', messages: [{role: 'system', content: sys}, {role: 'user', content: msg}], max_tokens: 800, temperature: 0.4 })
+      body: JSON.stringify({ model: ai.modelName || 'deepseek-chat', messages: [{role: 'system', content: sys}, {role: 'user', content: msg}], max_tokens: 1200, temperature: 0.4 })
     });
     if(!r.ok) { var e = await r.json().catch(function(){return {};}); throw new Error((e && e.error && e.error.message) || 'HTTP ' + r.status); }
     var d = await r.json();
@@ -217,179 +213,166 @@ function scrollEnd(){ setTimeout(function() { var m = document.getElementById('c
 
 function handleAdminLogin() {
   var p = document.getElementById('admin_pass').value.trim();
-  if(p === 'gkslhdw666') { 
-    S.isAdmin = true; 
-    toast('🔓 最高控制权验证通过，核心管理就绪！'); 
-    renderOverlay舱(); 
-  } else { 
-    alert('管理暗号错误！'); 
-  }
+  if(p === 'gkslhdw666') { S.isAdmin = true; toast('🔓 核心控制权已开启'); renderOverlay舱(); } else { alert('密码错误'); }
 }
 
 function exportNewHtmlCode() {
   var currentCode = document.documentElement.outerHTML;
   var dataStr = "var PERMANENT_AIS = " + JSON.stringify(PERMANENT_AIS, null, 2) + ";";
   var updatedCode = currentCode.replace(/var PERMANENT_AIS\s*=\s*\[[\s\S]*?\];/g, dataStr);
-  
   var blob = new Blob([updatedCode], {type: "text/html;charset=utf-8"});
-  var a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "工控神录.html";
-  a.click();
-  toast("💾 最新全开放多设备文件已生成并下载！");
+  var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "工控神录.html"; a.click();
+  toast("💾 网页源码文件已打包导出！");
 }
 
 function exeRetry(b64Data) {
   if(S.loading) return;
-  try {
-    var rawString = decodeURIComponent(escape(atob(b64Data)));
-    S.inp = rawString;
-    send();
-  } catch(err) {
-    toast('❌ 解析重试数据失败');
-  }
+  try { S.inp = decodeURIComponent(escape(atob(b64Data))); send(); } catch(err) { toast('❌ 解析重试失败'); }
 }
 
 async function send(){
-  var text = S.inp.trim();
-  if(!text || S.loading) return;
-
+  var text = S.inp.trim(); if(!text || S.loading) return;
   var activeAis = getAllActiveAis();
-  if(activeAis.length === 0) { toast('⚠️ 当前没有可调用的 AI 接口，请点击右上角 [⚙ 管理面] 查看配置！'); return; }
+  if(activeAis.length === 0) { toast('⚠️ 暂无生效接口，请点右上角管理面板注入！'); return; }
 
   var currentTurnTopic = S.customTopic ? S.customTopic.trim() : '';
   var currentTurnRoles = S.activeRoleIds.slice();
-
   var chatMain = document.getElementById('chatMain');
-  var welcomeBox = chatMain.querySelector('.welcome');
-  if(welcomeBox) { chatMain.innerHTML = ''; }
+  if(chatMain.querySelector('.welcome')) { chatMain.innerHTML = ''; }
 
   var secureB64Text = btoa(unescape(encodeURIComponent(text)));
-
   var uRow = document.createElement('div'); uRow.className = 'msgrow u';
-  uRow.innerHTML = '<div class="bbl u">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + 
-    '<div class="mtr"><span>' + now2() + '</span><span class="retry-btn" onclick="exeRetry(\'' + secureB64Text + '\')">🔄 重试</span></div></div>';
+  uRow.innerHTML = '<div class="bbl u">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '<div class="mtr"><span>' + now2() + '</span><span class="retry-btn" onclick="exeRetry(\'' + secureB64Text + '\')">🔄 重试</span></div></div>';
   chatMain.appendChild(uRow);
 
   S.inp = ''; S.customTopic = '';
-  var ta = document.getElementById('mInp'); if(ta) ta.value = '';
-  var ti = document.getElementById('tInp'); if(ti) ti.value = '';
+  document.getElementById('mInp').value = ''; var ti = document.getElementById('tInp'); if(ti) ti.value = '';
   scrollEnd();
 
   var loadRow = document.createElement('div'); loadRow.className = 'msgrow';
   loadRow.innerHTML = '<div class="av">✨</div><div class="bbl ai" style="border-color:#f59e0b"><div class="typing"><i></i><i></i><i></i><span class="ttxt" id="loadingTxt">🔥 联合会审中...</span></div></div>';
-  chatMain.appendChild(loadRow);
-  scrollEnd();
+  chatMain.appendChild(loadRow); scrollEnd();
 
   var runningLog = '【故障问题】：' + text + '\n';
-  var finalSolution = "";
-  var debateRound = 1, maxRounds = 3, consensusReached = false;
-  var conflictSummary = [];
-
-  S.loading = true;
-  var sendBtn = document.getElementById('sendBtn'); if(sendBtn) sendBtn.disabled = true;
+  var finalSolution = ""; var debateRound = 1, maxRounds = 3, consensusReached = false; var conflictSummary = [];
+  S.loading = true; document.getElementById('sendBtn').disabled = true;
 
   try {
     while(debateRound <= maxRounds && !consensusReached) {
       var roundAgreements = 0;
       for(var i=0; i < activeAis.length; i++) {
         var currentAi = activeAis[i];
-        var lTxt = document.getElementById('loadingTxt');
-        if(lTxt) lTxt.textContent = '🔥 联合会审... [' + currentAi.name + ' R' + debateRound + ']';
+        var lTxt = document.getElementById('loadingTxt'); if(lTxt) lTxt.textContent = '🔥 联合会审... [' + currentAi.name + ' R' + debateRound + ']';
 
         var instructionPrompt = '【工控高阶圆桌会审控制指令】\n' + runningLog + '\n';
-        if (debateRound === 1 && i === 0) {
-          instructionPrompt += '请作为首发节点给出最精确初代方案。';
-        } else {
-          instructionPrompt += '【前轮审议底卷】：请深审上方方案，若有潜在隐患立刻反驳修正！完全同意则开头带上“【完全同意，达成共识】”！';
-        }
+        if (debateRound === 1 && i === 0) { instructionPrompt += '请作为首发节点给出最精确初代方案。'; } 
+        else { instructionPrompt += '【前轮审议底卷】：请深审上方方案，若有潜在隐患立刻反驳修正！完全同意则开头带上“【完全同意，达成共识】”！'; }
 
         var reply = await requestAi(currentAi, buildSys(text, currentTurnTopic, currentTurnRoles), instructionPrompt);
         var isAgree = reply.indexOf('完全同意') > -1 || reply.indexOf('达成共识') > -1;
         
         if(isAgree) { roundAgreements++; } 
         else if(debateRound > 1) { conflictSummary.push('[' + currentAi.name + ' R' + debateRound + '] 反驳：' + reply.slice(0, 40) + '...'); }
-
         runningLog += '▶ [' + currentAi.name + ']: ' + reply + '\n\n';
         
         var dRow = document.createElement('div'); dRow.className = 'msgrow';
         dRow.innerHTML = '<div class="av">💬</div><div class="bbl ai deb"><div class="mmeta"><span class="mtag deb">' + currentAi.name + ' [R' + debateRound + ']</span><span style="font-size:10px;color:#475569">' + (isAgree ? '🟢 附议' : '⚡ 反驳') + '</span><span class="mts">' + now2() + '</span></div>' + renderContent(reply) + '</div>';
-        chatMain.insertBefore(dRow, loadRow);
-        scrollEnd();
-        
+        chatMain.insertBefore(dRow, loadRow); scrollEnd();
         if(!isAgree || !finalSolution) finalSolution = reply;
       }
       if(roundAgreements === activeAis.length || activeAis.length === 1) { consensusReached = true; } else { debateRound++; }
     }
-
     var kw = extractKW(text + finalSolution);
     var finalBlockText = '🏆 【圆桌收敛最终决议】\n\n' + finalSolution;
     if(conflictSummary.length > 0) finalBlockText += '\n\n-----------------------------------------\n🔍 【分歧追溯】：\n• ' + conflictSummary.join('\n• ');
-
-    var fRow = document.createElement('div'); fRow.className = 'msgrow';
-    var kwHtml = (kw.length > 0) ? '<div class="memtag">🧠 共识 · ' + kw.slice(0,3).join(' · ') + '</div>' : '';
-    fRow.innerHTML = '<div class="av">🏆</div><div class="bbl ai"><div class="mmeta"><span class="mtag">圆桌联合会议</span><span class="mts">' + now2() + '</span></div>' + renderContent(finalBlockText) + kwHtml + '</div>';
+    var fRow = document.createElement('div');
+    fRow.innerHTML = '<div class="av">🏆</div><div class="bbl ai"><div class="mmeta"><span class="mtag">圆桌联合会议</span><span class="mts">' + now2() + '</span></div>' + renderContent(finalBlockText) + (kw.length? '<div class="memtag">🧠 共识 · '+kw.slice(0,3).join(' · ')+'</div>':'') + '</div>';
     chatMain.insertBefore(fRow, loadRow);
   } catch(e) {
     var errRow = document.createElement('div'); errRow.className = 'msgrow';
     errRow.innerHTML = '<div class="av">⚠</div><div class="bbl er">❌ 通信中断: ' + e.message + '<br><button class="err-retry-action" onclick="exeRetry(\'' + secureB64Text + '\')">⚡ 重新连接</button></div>';
     chatMain.insertBefore(errRow, loadRow);
   }
-
   if(loadRow && loadRow.parentNode) loadRow.parentNode.removeChild(loadRow);
-  S.loading = false; if(sendBtn) sendBtn.disabled = false; scrollEnd();
+  S.loading = false; document.getElementById('sendBtn').disabled = false; scrollEnd();
+}
+
+// 🎛️ 智能配置注入函数（不需要手动去找和打字补全）
+function fillTemplate(type, isCore) {
+  var pfx = isCore ? 'p_' : 'l_';
+  var nameEl = document.getElementById(pfx+'name');
+  var urlEl = document.getElementById(pfx+'url');
+  var mnameEl = document.getElementById(pfx+'mname');
+  var typeEl = document.getElementById(pfx+'type');
+
+  if(type === 'ds_official') {
+    if(nameEl) nameEl.value = 'DeepSeek官方';
+    if(urlEl) urlEl.value = '[https://api.deepseek.com/v1/chat/completions](https://api.deepseek.com/v1/chat/completions)';
+    if(mnameEl) mnameEl.value = 'deepseek-chat';
+    if(typeEl) typeEl.value = 'openai';
+  } else if(type === 'ds_silicon') {
+    if(nameEl) nameEl.value = '硅基流动DeepSeek';
+    if(urlEl) urlEl.value = '[https://api.siliconflow.cn/v1/chat/completions](https://api.siliconflow.cn/v1/chat/completions)';
+    if(mnameEl) mnameEl.value = 'deepseek-ai/DeepSeek-V3';
+    if(typeEl) typeEl.value = 'openai';
+  } else if(type === 'gemini') {
+    if(nameEl) nameEl.value = 'Gemini原生';
+    if(urlEl) urlEl.value = '[https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent](https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent)';
+    if(mnameEl) mnameEl.value = 'gemini-2.0-flash';
+    if(typeEl) typeEl.value = 'gemini';
+  }
+}
+
+function processNodeInputs(pfx) {
+  var name = document.getElementById(pfx+'name').value.trim();
+  var url = document.getElementById(pfx+'url').value.trim();
+  var key = document.getElementById(pfx+'key').value.trim();
+  var mName = document.getElementById(pfx+'mname').value.trim();
+  var type = document.getElementById(pfx+'type').value;
+
+  if(!name || !key) { alert('【名称】和【密钥 KEY】是必填项！'); return null; }
+  
+  // 核心逻辑：如果URL缺省，根据名称或常规常识自动智能补全官方路径
+  if(!url) {
+    if(name.toLowerCase().indexOf('deepseek') > -1) {
+      url = '[https://api.deepseek.com/v1/chat/completions](https://api.deepseek.com/v1/chat/completions)';
+      if(!mName) mName = 'deepseek-chat';
+      type = 'openai';
+    } else {
+      alert('无法识别该AI的默认URL，请尝试点击下方快捷模板一键生成配置！');
+      return null;
+    }
+  }
+  if(!mName) mName = 'default';
+  return {name: name, url: url, key: key, modelName: mName, type: type};
 }
 
 function addPermanentNodeAdmin() {
-  var name = document.getElementById('p_name').value.trim();
-  var url = document.getElementById('p_url').value.trim();
-  var key = document.getElementById('p_key').value.trim();
-  var mName = document.getElementById('p_mname').value.trim();
-  var type = document.getElementById('p_type').value;
-  if(!name || !url || !key) { alert('请填全永久节点信息！'); return; }
-  PERMANENT_AIS.push({name: name, url: url, key: key, modelName: mName, type: type});
-  toast('✅ 永久席位已加入序列！请务必点击下方按钮导出新版本源码文件！');
-  renderOverlay舱();
+  var data = processNodeInputs('p_'); if(!data) return;
+  PERMANENT_AIS.push(data); toast('👑 永久核心席位已就位，请点击下方按钮导出网页！'); renderOverlay舱();
 }
-
-function deletePermanentNodeAdmin(idx) {
-  PERMANENT_AIS.splice(idx, 1);
-  toast('🗑️ 永久席位已移除！请记得导出更新文件！');
-  renderOverlay舱();
-}
+function deletePermanentNodeAdmin(idx) { PERMANENT_AIS.splice(idx, 1); toast('🗑️ 永久席位已移除'); renderOverlay舱(); }
 
 function addLocalNode() {
-  var name = document.getElementById('l_name').value.trim();
-  var url = document.getElementById('l_url').value.trim();
-  var key = document.getElementById('l_key').value.trim();
-  var mName = document.getElementById('l_mname').value.trim();
-  var type = document.getElementById('l_type').value;
-  if(!name || !url || !key) { alert('请填全本地节点信息！'); return; }
-  S.localAis.push({name: name, url: url, key: key, modelName: mName, type: type});
-  saveLocalAis(); toast('✅ 本地独享节点已存入当前浏览器');
-  renderOverlay舱();
+  var data = processNodeInputs('l_'); if(!data) return;
+  S.localAis.push(data); saveLocalAis(); toast('✅ 本地接口已存入本浏览器缓存'); renderOverlay舱();
 }
-
 function deleteLocalNode(idx) { S.localAis.splice(idx, 1); saveLocalAis(); toast('🗑️ 本地席位已移除'); renderOverlay舱(); }
 
 function updateStage3D() {
   var stage = document.getElementById('dynamicStage3D'); if(!stage) return;
   var orbitHtml = ''; var allAis = getAllActiveAis(); var activeCount = allAis.length;
-  if(activeCount === 0) {
-    stage.innerHTML = '<div class="wcat">🐯</div><div style="font-size:10px;color:#64748b;position:absolute;bottom:0">快加入你的神辅助</div>';
-    return;
-  }
+  if(activeCount === 0) { stage.innerHTML = '<div class="wcat">🐈‍⬛</div><div style="font-size:10px;color:#475569;position:absolute;bottom:0">点击管理面板加入AI节点</div>'; return; }
   S.angle += 0.025;
   allAis.forEach(function(ai, idx) {
     var personalAngle = S.angle + (idx * (Math.PI * 2 / activeCount));
     var x = Math.cos(personalAngle) * 85; var y = Math.sin(personalAngle) * 35;
-    var sinNorm = Math.sin(personalAngle);
-    var scale = 0.72 + (sinNorm + 1) * 0.23;
+    var sinNorm = Math.sin(personalAngle); var scale = 0.72 + (sinNorm + 1) * 0.23;
     var styleStr = 'transform: translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + '); opacity: ' + (0.5 + (sinNorm + 1) * 0.3) + '; z-index: ' + Math.floor((sinNorm + 1) * 10) + ';';
     if(ai.isCore) styleStr += 'border-color:#34d399;color:#34d399;';
     orbitHtml += '<div class="orbit-ai" style="' + styleStr + '">' + (ai.isCore ? '👑 ' : '⚡ ') + ai.name + '</div>';
   });
-  stage.innerHTML = '<div class="wcat">🐯</div>' + orbitHtml;
+  stage.innerHTML = '<div class="wcat">🐈‍⬛</div>' + orbitHtml;
 }
 
 function initAppStructure() {
@@ -405,9 +388,7 @@ function initAppStructure() {
 
 function renderCtrlBar() {
   var bar = document.getElementById('ctrlBar'); if(!bar) return;
-  var rolesHtml = ROLES.map(function(r) {
-    return '<button class="' + ((S.activeRoleIds.indexOf(r.id) > -1) ? 'chip cg' : 'chip') + '" onclick="toggleRole(\''+r.id+'\')">' + r.icon + ' ' + r.name + '</button>';
-  }).join('');
+  var rolesHtml = ROLES.map(function(r) { return '<button class="' + ((S.activeRoleIds.indexOf(r.id) > -1) ? 'chip cg' : 'chip') + '" onclick="toggleRole(\''+r.id+'\')">' + r.icon + ' ' + r.name + '</button>'; }).join('');
   bar.innerHTML = '<div class="topic-wrapper"><input id="tInp" class="topic-input" type="text" placeholder="✍️ 主导议题..." oninput="S.customTopic=this.value"><button class="topic-clear" onclick="S.customTopic=\'\';var ti=document.getElementById(\'tInp\'); if(ti)ti.value=\'\';">❌</button></div><div class="sep"></div>' + rolesHtml;
 }
 
@@ -420,18 +401,31 @@ function renderOverlay舱() {
     return '<div class="setrow" style="background:rgba(52,211,153,0.02);padding:4px;border-radius:4px;border:1px solid rgba(52,211,153,0.2)"><div style="font-size:11px;color:#34d399;flex:1">👑 '+ai.name+'</div>' + (S.isAdmin ? '<button class="setdel" onclick="deletePermanentNodeAdmin('+idx+')">移除</button>' : '') + '</div>';
   }).join('');
 
-  var localListHtml = (S.localAis.length === 0) ? '<div style="font-size:10px;color:#475569">暂无当前设备独享接口</div>' : S.localAis.map(function(ai, idx){
+  var localListHtml = (S.localAis.length === 0) ? '<div style="font-size:10px;color:#475569">暂无本地独享接口</div>' : S.localAis.map(function(ai, idx){
     return '<div class="setrow" style="background:rgba(255,255,255,0.02);padding:4px;border-radius:4px;border:1px solid #1e293b"><div style="font-size:11px;color:#38bdf8;flex:1">⚡ '+ai.name+'</div><button class="setdel" onclick="deleteLocalNode('+idx+')">丢弃</button></div>';
   }).join('');
+
+  var quickTemplateCore = '<div>' +
+    '<button class="quick-btn" onclick="fillTemplate(\'ds_official\', true)">✨ 官方DeepSeek</button>' +
+    '<button class="quick-btn" onclick="fillTemplate(\'ds_silicon\', true)">⚡ 硅基DeepSeek</button>' +
+    '<button class="quick-btn" onclick="fillTemplate(\'gemini\', true)">♊ Gemini闪电</button>' +
+    '</div>';
+
+  var quickTemplateLocal = '<div>' +
+    '<button class="quick-btn" onclick="fillTemplate(\'ds_official\', false)">✨ 官方DeepSeek</button>' +
+    '<button class="quick-btn" onclick="fillTemplate(\'ds_silicon\', false)">⚡ 硅基DeepSeek</button>' +
+    '<button class="quick-btn" onclick="fillTemplate(\'gemini\', false)">♊ Gemini闪电</button>' +
+    '</div>';
 
   var adminPanelHtml = !S.isAdmin ? 
     '<div class="addbox" style="border-color:rgba(245,158,11,0.25)"><div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700">🔒 核心通道特权管理：输入密码进入</div><div class="setrow"><span class="setname">特权密码</span><input class="setinput" type="password" id="admin_pass" placeholder="输入特权暗号解锁"></div><button class="addbtn" style="background:#f59e0b" onclick="handleAdminLogin()">验证权限</button></div>' :
     '<div class="addbox" style="border-color:#34d399; background:rgba(52,211,153,0.02)"><div style="font-size:11px;color:#34d399;font-weight:700;margin-bottom:6px;">🛠️ 最高管理特权已开启</div>' +
-    '<input class="setinput" id="p_name" placeholder="永久节点名（如：生产线Gemini）">' +
-    '<input class="setinput" id="p_url" placeholder="API URL (例如: https://...)">' +
-    '<input class="setinput" id="p_mname" placeholder="模型代码 (例如: gemini-2.0-flash)">' +
-    '<input class="setinput" type="password" id="p_key" placeholder="API Key 密钥">' +
-    '<select id="p_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="gemini">Gemini 原生</option><option value="openai">OpenAI 规范</option></select>' +
+    '<div style="margin-bottom:6px;">' + quickTemplateCore + '</div>' +
+    '<input class="setinput" id="p_name" placeholder="节点名（如：DeepSeek）">' +
+    '<input class="setinput" id="p_key" type="password" placeholder="API Key 密钥（必填）">' +
+    '<input class="setinput" id="p_url" placeholder="API URL (非必填，留空则智能判定)">' +
+    '<input class="setinput" id="p_mname" placeholder="模型代码 (非必填)">' +
+    '<select id="p_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="openai">OpenAI 规范 / DeepSeek</option><option value="gemini">Gemini 原生</option></select>' +
     '<button class="addbtn" style="background:#34d399" onclick="addPermanentNodeAdmin()">并入核心通道库</button>' +
     '<button class="addbtn" style="background:#e11d48;color:#fff;margin-top:10px;" onclick="exportNewHtmlCode()">💾 立即打包下载最新网页文件</button></div>';
 
@@ -441,7 +435,13 @@ function renderOverlay舱() {
     adminPanelHtml +
     '<div class="settitle" style="margin-top:14px"> 当前设备本地部署席位 </div>' +
     '<div style="max-height:80px;overflow-y:auto;margin-bottom:6px;">' + localListHtml + '</div>' +
-    '<div class="addbox"><div style="font-size:11px;color:#38bdf8;margin-bottom:4px;font-weight:700">➕ 仅塞入当前设备缓存</div><input class="setinput" id="l_name" placeholder="节点名"><input class="setinput" id="l_url" placeholder="API URL"><input class="setinput" id="l_mname" placeholder="模型代码"><input class="setinput" type="password" id="l_key" placeholder="密钥 KEY"><select id="l_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="openai">OpenAI 规范</option></select><button class="addbtn" onclick="addLocalNode()">加入此设备</button></div>' +
+    '<div class="addbox"><div style="font-size:11px;color:#38bdf8;margin-bottom:4px;font-weight:700">➕ 仅塞入当前设备缓存</div>' +
+    '<div style="margin-bottom:6px;">' + quickTemplateLocal + '</div>' +
+    '<input class="setinput" id="l_name" placeholder="节点名（如：我的DeepSeek）">' +
+    '<input class="setinput" id="l_key" type="password" placeholder="密钥 KEY（必填）">' +
+    '<input class="setinput" id="l_url" placeholder="API URL (不填会根据名字自动识别)">' +
+    '<input class="setinput" id="l_mname" placeholder="模型代码 (可不填)">' +
+    '<select id="l_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="openai">OpenAI 规范 / DeepSeek</option><option value="gemini">Gemini 原生</option></select><button class="addbtn" onclick="addLocalNode()">加入此设备</button></div>' +
     '<button class="setclose" onclick="toggleOverlay(false)">关闭控制舱</button></div></div>';
 }
 
