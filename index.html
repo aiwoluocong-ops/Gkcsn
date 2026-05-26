@@ -438,8 +438,7 @@ function renderOverlay舱() {
     '<div class="addbox" style="border-color:rgba(245,158,11,0.25)"><div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700">🔒 核心通道特权管理：输入密码进入</div><div class="setrow"><span class="setname">特权密码</span><input class="setinput" type="password" id="admin_pass" placeholder="输入特权暗号解锁"></div><button class="addbtn" style="background:#f59e0b" onclick="handleAdminLogin()">验证权限</button></div>' :
     '<div class="addbox" style="border-color:#34d399; background:rgba(52,211,153,0.02)"><div style="font-size:11px;color:#34d399;font-weight:700;margin-bottom:6px;">🛠️ 最高管理特权已开启</div>' +
     '<input class="setinput" id="p_name" placeholder="永久节点名（如：生产线Gemini）">' +
-    '<input class="setinput" id="p_url" value="[https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=)" placeholder="API URL">' +
-    '<input class="setinput" id="p_mname" value="gemini-2.0-flash" placeholder="模型代码">' +
+    '<input class="setinput" id="p_url"  placeholder="API URL">' +
     '<input class="setinput" type="password" id="p_key" placeholder="API Key 密钥">' +
     '<select id="p_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="gemini">Gemini 原生</option><option value="openai">OpenAI 规范</option></select>' +
     '<button class="addbtn" style="background:#34d399" onclick="addPermanentNodeAdmin()">并入核心通道库</button>' +
