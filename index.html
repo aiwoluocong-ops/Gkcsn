@@ -212,7 +212,7 @@ function scrollEnd(){ setTimeout(function() { var m = document.getElementById('c
 
 function handleAdminLogin() {
   var p = document.getElementById('admin_pass').value.trim();
-  if(p === 'gkslhdw666') { S.isAdmin = true; toast('🔓 核心控制权已开启'); renderOverlay舱(); } else { alert('密码错误'); }
+  if(p === 'gkslhdw666') { S.isAdmin = true; toast('控制权已开启'); renderOverlay舱(); } else { alert('密码错误'); }
 }
 
 function exportNewHtmlCode() {
@@ -221,7 +221,7 @@ function exportNewHtmlCode() {
   var updatedCode = currentCode.replace(/var PERMANENT_AIS\s*=\s*\[[\s\S]*?\];/g, dataStr);
   var blob = new Blob([updatedCode], {type: "text/html;charset=utf-8"});
   var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "工控神录.html"; a.click();
-  toast("💾 网页源码文件已打包导出！");
+  toast(" 网页源码文件已打包导出！");
 }
 
 function exeRetry(b64Data) {
@@ -289,7 +289,7 @@ async function send(){
     chatMain.insertBefore(fRow, loadRow);
   } catch(e) {
     var errRow = document.createElement('div'); errRow.className = 'msgrow';
-    errRow.innerHTML = '<div class="av">⚠</div><div class="bbl er">❌ 通信中断: ' + e.message + '<br><button class="err-retry-action" onclick="exeRetry(\'' + secureB64Text + '\')">⚡ 重新连接</button></div>';
+    errRow.innerHTML = '<div class="av">⚠</div><div class="bbl er"> 通信中断: ' + e.message + '<br><button class="err-retry-action" onclick="exeRetry(\'' + secureB64Text + '\')"> 重新连接</button></div>';
     chatMain.insertBefore(errRow, loadRow);
   }
   if(loadRow && loadRow.parentNode) loadRow.parentNode.removeChild(loadRow);
@@ -337,7 +337,7 @@ function processNodeInputs(pfx) {
 
 function addPermanentNodeAdmin() {
   var data = processNodeInputs('p_'); if(!data) return;
-  PERMANENT_AIS.push(data); toast('👑 永久席位添加成功'); renderOverlay舱();
+  PERMANENT_AIS.push(data); toast('永久席位添加成功'); renderOverlay舱();
 }
 function deletePermanentNodeAdmin(idx) { PERMANENT_AIS.splice(idx, 1); toast('🗑️ 永久席位已移除'); renderOverlay舱(); }
 
@@ -415,7 +415,7 @@ function renderOverlay舱() {
     '<input class="setinput" id="p_mname" placeholder="模型代码 (不填则留空透传)">' +
     '<select id="p_type" class="setinput" style="background:#0a0f1a;color:#fff;width:100%"><option value="openai">OpenAI 规范 / DeepSeek</option><option value="gemini">Gemini 原生</option></select>' +
     '<button class="addbtn" style="background:#34d399" onclick="addPermanentNodeAdmin()">并入核心通道库</button>' +
-    '<button class="addbtn" style="background:#e11d48;color:#fff;margin-top:10px;" onclick="exportNewHtmlCode()">💾 立即打包下载最新网页文件</button></div>';
+    '<button class="addbtn" style="background:#e11d48;color:#fff;margin-top:10px;" onclick="exportNewHtmlCode()"> 立即打包下载最新网页文件</button></div>';
 
   container.innerHTML = '<div class="overlay" id="setOverlay" onclick="if(event.target===this)toggleOverlay(false)"><div class="setbox">' +
     '<div class="settitle"> 核心席位 </div>' +
