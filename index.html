@@ -100,7 +100,7 @@ textarea:focus{border-color:rgba(245,158,11,0.5)}
 var PERMANENT_AIS = [];
 
 var ROLES=[
-  {id:'fault',icon:name:'故障诊断',prompt:'核心任务：工控故障诊断。输出：①最可能原因（按概率降序）②具体排查步骤③寄存器/参数地址。'},
+  {id:'fault',name:'故障诊断',prompt:'核心任务：工控故障诊断。输出：①最可能原因（按概率降序）②具体排查步骤③寄存器/参数地址。'},
   {id:'plc',name:'PLC编程',prompt:'核心任务：PLC编程。直接给出能粘贴使用的代码，注明平台（博途SCL/三菱ST/欧姆龙ST），必须有中文注释。'},
   {id:'robot',name:'机器人',prompt:'核心任务：工业机器人（FANUC/安川/川崎/ABB/KUKA）。给出具体操作路径、菜单名称、参数值。'},
   {id:'comm',name:'通信调试',prompt:'核心任务：工业通信（Profinet/EtherCAT/Modbus）。给出具体配置参数、IP/站号设置。'}
