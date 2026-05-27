@@ -241,7 +241,7 @@ async function send(){
 
   var secureB64Text = btoa(unescape(encodeURIComponent(text)));
   var uRow = document.createElement('div'); uRow.className = 'msgrow u';
-  uRow.innerHTML = '<div class="bbl u">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '<div class="mtr"><span>' + now2() + '</span><span class="retry-btn" onclick="exeRetry(\'' + secureB64Text + '\')">🔄 重试</span></div></div>';
+  uRow.innerHTML = '<div class="bbl u">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '<div class="mtr"><span>' + now2() + '</span><span class="retry-btn" onclick="exeRetry(\'' + secureB64Text + '\')">重试</span></div></div>';
   chatMain.appendChild(uRow);
 
   S.inp = ''; S.customTopic = '';
@@ -350,7 +350,7 @@ function deleteLocalNode(idx) { S.localAis.splice(idx, 1); saveLocalAis(); toast
 function updateStage3D() {
   var stage = document.getElementById('dynamicStage3D'); if(!stage) return;
   var orbitHtml = ''; var allAis = getAllActiveAis(); var activeCount = allAis.length;
-  if(activeCount === 0) { stage.innerHTML = '<div class="wcat">🐈‍⬛</div><div style="font-size:10px;color:#475569;position:absolute;bottom:0">点击管理面板加入AI节点</div>'; return; }
+  if(activeCount === 0) { stage.innerHTML = '<div class="wcat">🐯</div><div style="font-size:10px;color:#475569;position:absolute;bottom:0">点击管理面板加入AI节点</div>'; return; }
   S.angle += 0.025;
   allAis.forEach(function(ai, idx) {
     var personalAngle = S.angle + (idx * (Math.PI * 2 / activeCount));
@@ -360,7 +360,7 @@ function updateStage3D() {
     if(ai.isCore) styleStr += 'border-color:#34d399;color:#34d399;';
     orbitHtml += '<div class="orbit-ai" style="' + styleStr + '">' + (ai.isCore ? '👑 ' : '⚡ ') + ai.name + '</div>';
   });
-  stage.innerHTML = '<div class="wcat">🐈‍⬛</div>' + orbitHtml;
+  stage.innerHTML = '<div class="wcat">🐯</div>' + orbitHtml;
 }
 
 function initAppStructure() {
