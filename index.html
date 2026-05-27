@@ -106,7 +106,8 @@ var ROLES=[
   {id:'comm',name:'通信调试',prompt:'核心任务：工业通信（Profinet/EtherCAT/Modbus）。给出具体配置参数、IP/站号设置。'}
 ];
 
-var PERSONA_CAT='你是《工控神录》AI辅助，主要辅助用户解决问题，人设：根据用户改变，变成用户喜欢的。';
+var PERSONA_CAT='你是《工控神录》AI神辅。人设：根据用户改变，变成用户喜欢的。';
+var KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧姆龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
 var extractKW = function(t){ return KWS.filter(function(k){ return t.indexOf(k) > -1; }); };
 
 // 🛠️ 设备独享本地临时席位
@@ -225,13 +226,13 @@ function exportNewHtmlCode() {
 
 function exeRetry(b64Data) {
   if(S.loading) return;
-  try { S.inp = decodeURIComponent(escape(atob(b64Data))); send(); } catch(err) { toast(' 解析重试失败'); }
+  try { S.inp = decodeURIComponent(escape(atob(b64Data))); send(); } catch(err) { toast('❌ 解析重试失败'); }
 }
 
 async function send(){
   var text = S.inp.trim(); if(!text || S.loading) return;
   var activeAis = getAllActiveAis();
-  if(activeAis.length === 0) { toast(' 暂无生效接口，请点右上角管理面板注入！'); return; }
+  if(activeAis.length === 0) { toast('⚠️ 暂无生效接口，请点右上角管理面板注入！'); return; }
 
   var currentTurnTopic = S.customTopic ? S.customTopic.trim() : '';
   var currentTurnRoles = S.activeRoleIds.slice();
@@ -240,7 +241,7 @@ async function send(){
 
   var secureB64Text = btoa(unescape(encodeURIComponent(text)));
   var uRow = document.createElement('div'); uRow.className = 'msgrow u';
-  uRow.innerHTML = '<div class="bbl u">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '<div class="mtr"><span>' + now2() + '</span><span class="retry-btn" onclick="exeRetry(\'' + secureB64Text + '\')">重试</span></div></div>';
+  uRow.innerHTML = '<div class="bbl u">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '<div class="mtr"><span>' + now2() + '</span><span class="retry-btn" onclick="exeRetry(\'' + secureB64Text + '\')">🔄 重试</span></div></div>';
   chatMain.appendChild(uRow);
 
   S.inp = ''; S.customTopic = '';
@@ -248,7 +249,7 @@ async function send(){
   scrollEnd();
 
   var loadRow = document.createElement('div'); loadRow.className = 'msgrow';
-  loadRow.innerHTML = '<div class="av">✨</div><div class="bbl ai" style="border-color:#f59e0b"><div class="typing"><i></i><i></i><i></i><span class="ttxt" id="loadingTxt">神辅讨论中...</span></div></div>';
+  loadRow.innerHTML = '<div class="av">✨</div><div class="bbl ai" style="border-color:#f59e0b"><div class="typing"><i></i><i></i><i></i><span class="ttxt" id="loadingTxt">🔥 联合会审中...</span></div></div>';
   chatMain.appendChild(loadRow); scrollEnd();
 
   var runningLog = '【故障问题】：' + text + '\n';
@@ -260,7 +261,7 @@ async function send(){
       var roundAgreements = 0;
       for(var i=0; i < activeAis.length; i++) {
         var currentAi = activeAis[i];
-        var lTxt = document.getElementById('loadingTxt'); if(lTxt) lTxt.textContent = '神辅讨论... [' + currentAi.name + ' R' + debateRound + ']';
+        var lTxt = document.getElementById('loadingTxt'); if(lTxt) lTxt.textContent = '🔥 联合会审... [' + currentAi.name + ' R' + debateRound + ']';
 
         var instructionPrompt = '【工控高阶圆桌会审控制指令】\n' + runningLog + '\n';
         if (debateRound === 1 && i === 0) { instructionPrompt += '请作为首发节点给出最精确初代方案。'; } 
@@ -281,7 +282,7 @@ async function send(){
       if(roundAgreements === activeAis.length || activeAis.length === 1) { consensusReached = true; } else { debateRound++; }
     }
     var kw = extractKW(text + finalSolution);
-    var finalBlockText = '讨论结果\n\n' + finalSolution;
+    var finalBlockText = '🏆 【圆桌收敛最终决议】\n\n' + finalSolution;
     if(conflictSummary.length > 0) finalBlockText += '\n\n-----------------------------------------\n🔍 【分歧追溯】：\n• ' + conflictSummary.join('\n• ');
     var fRow = document.createElement('div');
     fRow.innerHTML = '<div class="av">🏆</div><div class="bbl ai"><div class="mmeta"><span class="mtag">圆桌联合会议</span><span class="mts">' + now2() + '</span></div>' + renderContent(finalBlockText) + (kw.length? '<div class="memtag">🧠 共识 · '+kw.slice(0,3).join(' · ')+'</div>':'') + '</div>';
@@ -338,18 +339,18 @@ function addPermanentNodeAdmin() {
   var data = processNodeInputs('p_'); if(!data) return;
   PERMANENT_AIS.push(data); toast('永久席位添加成功'); renderOverlay舱();
 }
-function deletePermanentNodeAdmin(idx) { PERMANENT_AIS.splice(idx, 1); toast(' 永久席位已移除'); renderOverlay舱(); }
+function deletePermanentNodeAdmin(idx) { PERMANENT_AIS.splice(idx, 1); toast('🗑️ 永久席位已移除'); renderOverlay舱(); }
 
 function addLocalNode() {
   var data = processNodeInputs('l_'); if(!data) return;
   S.localAis.push(data); saveLocalAis(); toast('✅ 本地节点已注入'); renderOverlay舱();
 }
-function deleteLocalNode(idx) { S.localAis.splice(idx, 1); saveLocalAis(); toast(' 本地席位已移除'); renderOverlay舱(); }
+function deleteLocalNode(idx) { S.localAis.splice(idx, 1); saveLocalAis(); toast('🗑️ 本地席位已移除'); renderOverlay舱(); }
 
 function updateStage3D() {
   var stage = document.getElementById('dynamicStage3D'); if(!stage) return;
   var orbitHtml = ''; var allAis = getAllActiveAis(); var activeCount = allAis.length;
-  if(activeCount === 0) { stage.innerHTML = '<div class="wcat">🐯</div><div style="font-size:10px;color:#475569;position:absolute;bottom:0">点击管理面板加入AI节点</div>'; return; }
+  if(activeCount === 0) { stage.innerHTML = '<div class="wcat">🐈‍⬛</div><div style="font-size:10px;color:#475569;position:absolute;bottom:0">点击管理面板加入AI节点</div>'; return; }
   S.angle += 0.025;
   allAis.forEach(function(ai, idx) {
     var personalAngle = S.angle + (idx * (Math.PI * 2 / activeCount));
@@ -357,9 +358,9 @@ function updateStage3D() {
     var sinNorm = Math.sin(personalAngle); var scale = 0.72 + (sinNorm + 1) * 0.23;
     var styleStr = 'transform: translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + '); opacity: ' + (0.5 + (sinNorm + 1) * 0.3) + '; z-index: ' + Math.floor((sinNorm + 1) * 10) + ';';
     if(ai.isCore) styleStr += 'border-color:#34d399;color:#34d399;';
-    orbitHtml += '<div class="orbit-ai" style="' + styleStr + '">' + (ai.isCore ?  : '⚡ ') + ai.name + '</div>';
+    orbitHtml += '<div class="orbit-ai" style="' + styleStr + '">' + (ai.isCore ? '👑 ' : '⚡ ') + ai.name + '</div>';
   });
-  stage.innerHTML = '<div class="wcat">🐯</div>' + orbitHtml;
+  stage.innerHTML = '<div class="wcat">🐈‍⬛</div>' + orbitHtml;
 }
 
 function initAppStructure() {
@@ -393,20 +394,20 @@ function renderOverlay舱() {
   }).join('');
 
   var quickTemplateCore = '<div>' +
-    '<button class="quick-btn" onclick="fillTemplate(\'ds_official\', true)"> 官方DeepSeek</button>' +
-    '<button class="quick-btn" onclick="fillTemplate(\'ds_silicon\', true)"> 硅基DeepSeek</button>' +
+    '<button class="quick-btn" onclick="fillTemplate(\'ds_official\', true)">官方DeepSeek</button>' +
+    '<button class="quick-btn" onclick="fillTemplate(\'ds_silicon\', true)">硅基DeepSeek</button>' +
     '<button class="quick-btn" onclick="fillTemplate(\'gemini\', true)">Gemini闪电</button>' +
     '</div>';
 
   var quickTemplateLocal = '<div>' +
-    '<button class="quick-btn" onclick="fillTemplate(\'ds_official\', false)"> 官方DeepSeek</button>' +
-    '<button class="quick-btn" onclick="fillTemplate(\'ds_silicon\', false)"> 硅基DeepSeek</button>' +
-    '<button class="quick-btn" onclick="fillTemplate(\'gemini\', false)"> Gemini闪电</button>' +
+    '<button class="quick-btn" onclick="fillTemplate(\'ds_official\', false)">官方DeepSeek</button>' +
+    '<button class="quick-btn" onclick="fillTemplate(\'ds_silicon\', false)">硅基DeepSeek</button>' +
+    '<button class="quick-btn" onclick="fillTemplate(\'gemini\', false)">Gemini闪电</button>' +
     '</div>';
 
   var adminPanelHtml = !S.isAdmin ? 
-    '<div class="addbox" style="border-color:rgba(245,158,11,0.25)"><div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700"> API配置</div><div class="setrow"><span class="setname">配置密码</span><input class="setinput" type="password" id="admin_pass" placeholder="输入特权暗号解锁"></div><button class="addbtn" style="background:#f59e0b" onclick="handleAdminLogin()">验证权限</button></div>' :
-    '<div class="addbox" style="border-color:#34d399; background:rgba(52,211,153,0.02)"><div style="font-size:11px;color:#34d399;font-weight:700;margin-bottom:6px;">API配置已开启</div>' +
+    '<div class="addbox" style="border-color:rgba(245,158,11,0.25)"><div style="font-size:11px;color:#f59e0b;margin-bottom:6px;font-weight:700">🔒 核心通道特权管理</div><div class="setrow"><span class="setname">特权密码</span><input class="setinput" type="password" id="admin_pass" placeholder="输入特权暗号解锁"></div><button class="addbtn" style="background:#f59e0b" onclick="handleAdminLogin()">验证权限</button></div>' :
+    '<div class="addbox" style="border-color:#34d399; background:rgba(52,211,153,0.02)"><div style="font-size:11px;color:#34d399;font-weight:700;margin-bottom:6px;">🛠️ 最高管理特权已开启</div>' +
     '<div style="margin-bottom:6px;">' + quickTemplateCore + '</div>' +
     '<input class="setinput" id="p_name" placeholder="节点名（必填）">' +
     '<input class="setinput" id="p_key" placeholder="API Key 密钥">' +
