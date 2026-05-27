@@ -100,13 +100,13 @@ textarea:focus{border-color:rgba(245,158,11,0.5)}
 var PERMANENT_AIS = [];
 
 var ROLES=[
-  {id:'fault',name:'故障诊断',prompt:'核心任务：工控故障诊断。输出：①最可能原因（按概率降序）②具体排查步骤③寄存器/参数地址。'},
-  {id:'plc',name:'PLC编程',prompt:'核心任务：PLC编程。直接给出能粘贴使用的代码，注明平台（博途SCL/三菱ST/欧姆龙ST），必须有中文注释。'},
-  {id:'robot',name:'机器人',prompt:'核心任务：工业机器人（FANUC/安川/川崎/ABB/KUKA）。给出具体操作路径、菜单名称、参数值。'},
-  {id:'comm',name:'通信调试',prompt:'核心任务：工业通信（Profinet/EtherCAT/Modbus）。给出具体配置参数、IP/站号设置。'}
+  {id:'fault',icon:'',name:'故障诊断',prompt:'核心任务：工控故障诊断。输出：①最可能原因（按概率降序）②具体排查步骤③寄存器/参数地址。'},
+  {id:'plc',icon:'',name:'PLC编程',prompt:'核心任务：PLC编程。直接给出能粘贴使用的代码，注明平台（博途SCL/三菱ST/欧姆龙ST），必须有中文注释。'},
+  {id:'robot',icon:'',name:'机器人',prompt:'核心任务：工业机器人（FANUC/安川/川崎/ABB/KUKA）。给出具体操作路径、菜单名称、参数值。'},
+  {id:'comm',icon:'',name:'通信调试',prompt:'核心任务：工业通信（Profinet/EtherCAT/Modbus）。给出具体配置参数、IP/站号设置。'}
 ];
 
-var PERSONA_CAT='你是《工控神录》AI神辅。人设：根据用户改变，变成用户喜欢的。';
+var PERSONA_CAT='你是《工控神录》AI副驾驶，代号"黑猫特工"。人设：根据用户改变，变成用户喜欢的。';
 var KWS=['西门子','三菱','安川','FANUC','川崎','ABB','KUKA','欧姆龙','Profinet','Modbus','EtherCAT','PLC','变频器','伺服','报警','故障','SCL','博途'];
 var extractKW = function(t){ return KWS.filter(function(k){ return t.indexOf(k) > -1; }); };
 
@@ -181,13 +181,13 @@ async function requestAi(ai, sys, msg) {
 function buildSys(q, activeTopic, activeRoles) {
   var sys = PERSONA_CAT + '\n\n';
   if (activeRoles && activeRoles.length > 0) {
-    sys += '【 技术阵列】：\n';
+    sys += '【💡 技术阵列】：\n';
     activeRoles.forEach(function(rId) {
       var target = ROLES.find(function(r){ return r.id === rId; });
       if(target) sys += '• [' + target.name + ']：' + target.prompt + '\n';
     });
   }
-  if(activeTopic && activeTopic.trim()){ sys += '\n\n【 核心议题】：优先运用：' + activeTopic.trim() + '。'; }
+  if(activeTopic && activeTopic.trim()){ sys += '\n\n【🔥 核心议题】：优先运用：' + activeTopic.trim() + '。'; }
   return sys;
 }
 
@@ -226,13 +226,13 @@ function exportNewHtmlCode() {
 
 function exeRetry(b64Data) {
   if(S.loading) return;
-  try { S.inp = decodeURIComponent(escape(atob(b64Data))); send(); } catch(err) { toast('解析重试失败'); }
+  try { S.inp = decodeURIComponent(escape(atob(b64Data))); send(); } catch(err) { toast('❌ 解析重试失败'); }
 }
 
 async function send(){
   var text = S.inp.trim(); if(!text || S.loading) return;
   var activeAis = getAllActiveAis();
-  if(activeAis.length === 0) { toast(' 暂无生效接口，请点右上角管理面板注入！'); return; }
+  if(activeAis.length === 0) { toast('⚠️ 暂无生效接口，请点右上角管理面板注入！'); return; }
 
   var currentTurnTopic = S.customTopic ? S.customTopic.trim() : '';
   var currentTurnRoles = S.activeRoleIds.slice();
@@ -241,7 +241,7 @@ async function send(){
 
   var secureB64Text = btoa(unescape(encodeURIComponent(text)));
   var uRow = document.createElement('div'); uRow.className = 'msgrow u';
-  uRow.innerHTML = '<div class="bbl u">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '<div class="mtr"><span>' + now2() + '</span><span class="retry-btn" onclick="exeRetry(\'' + secureB64Text + '\')">重试</span></div></div>';
+  uRow.innerHTML = '<div class="bbl u">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '<div class="mtr"><span>' + now2() + '</span><span class="retry-btn" onclick="exeRetry(\'' + secureB64Text + '\')">🔄 重试</span></div></div>';
   chatMain.appendChild(uRow);
 
   S.inp = ''; S.customTopic = '';
@@ -249,7 +249,7 @@ async function send(){
   scrollEnd();
 
   var loadRow = document.createElement('div'); loadRow.className = 'msgrow';
-  loadRow.innerHTML = '<div class="av">✨</div><div class="bbl ai" style="border-color:#f59e0b"><div class="typing"><i></i><i></i><i></i><span class="ttxt" id="loadingTxt"> 联合会审中...</span></div></div>';
+  loadRow.innerHTML = '<div class="av">✨</div><div class="bbl ai" style="border-color:#f59e0b"><div class="typing"><i></i><i></i><i></i><span class="ttxt" id="loadingTxt">🔥 联合会审中...</span></div></div>';
   chatMain.appendChild(loadRow); scrollEnd();
 
   var runningLog = '【故障问题】：' + text + '\n';
@@ -261,7 +261,7 @@ async function send(){
       var roundAgreements = 0;
       for(var i=0; i < activeAis.length; i++) {
         var currentAi = activeAis[i];
-        var lTxt = document.getElementById('loadingTxt'); if(lTxt) lTxt.textContent = ' 联合会审... [' + currentAi.name + ' R' + debateRound + ']';
+        var lTxt = document.getElementById('loadingTxt'); if(lTxt) lTxt.textContent = '🔥 联合会审... [' + currentAi.name + ' R' + debateRound + ']';
 
         var instructionPrompt = '【工控高阶圆桌会审控制指令】\n' + runningLog + '\n';
         if (debateRound === 1 && i === 0) { instructionPrompt += '请作为首发节点给出最精确初代方案。'; } 
@@ -339,13 +339,13 @@ function addPermanentNodeAdmin() {
   var data = processNodeInputs('p_'); if(!data) return;
   PERMANENT_AIS.push(data); toast('永久席位添加成功'); renderOverlay舱();
 }
-function deletePermanentNodeAdmin(idx) { PERMANENT_AIS.splice(idx, 1); toast(' 永久席位已移除'); renderOverlay舱(); }
+function deletePermanentNodeAdmin(idx) { PERMANENT_AIS.splice(idx, 1); toast('🗑️ 永久席位已移除'); renderOverlay舱(); }
 
 function addLocalNode() {
   var data = processNodeInputs('l_'); if(!data) return;
   S.localAis.push(data); saveLocalAis(); toast('✅ 本地节点已注入'); renderOverlay舱();
 }
-function deleteLocalNode(idx) { S.localAis.splice(idx, 1); saveLocalAis(); toast(' 本地席位已移除'); renderOverlay舱(); }
+function deleteLocalNode(idx) { S.localAis.splice(idx, 1); saveLocalAis(); toast('🗑️ 本地席位已移除'); renderOverlay舱(); }
 
 function updateStage3D() {
   var stage = document.getElementById('dynamicStage3D'); if(!stage) return;
@@ -358,7 +358,7 @@ function updateStage3D() {
     var sinNorm = Math.sin(personalAngle); var scale = 0.72 + (sinNorm + 1) * 0.23;
     var styleStr = 'transform: translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + '); opacity: ' + (0.5 + (sinNorm + 1) * 0.3) + '; z-index: ' + Math.floor((sinNorm + 1) * 10) + ';';
     if(ai.isCore) styleStr += 'border-color:#34d399;color:#34d399;';
-    orbitHtml += '<div class="orbit-ai" style="' + styleStr + '">' + (ai.isCore ? ) + ai.name + '</div>';
+    orbitHtml += '<div class="orbit-ai" style="' + styleStr + '">' + (ai.isCore ? '👑 ' : '⚡ ') + ai.name + '</div>';
   });
   stage.innerHTML = '<div class="wcat">🐈‍⬛</div>' + orbitHtml;
 }
@@ -386,7 +386,7 @@ function renderOverlay舱() {
   var container = document.getElementById('overlayContainer'); if(!container) return;
   
   var permanentListHtml = (PERMANENT_AIS.length === 0) ? '<div style="font-size:10px;color:#475569">暂无永久核心接口</div>' : PERMANENT_AIS.map(function(ai, idx){
-    return '<div class="setrow" style="background:rgba(52,211,153,0.02);padding:4px;border-radius:4px;border:1px solid rgba(52,211,153,0.2)"><div style="font-size:11px;color:#34d399;flex:1"> '+ai.name+'</div>' + (S.isAdmin ? '<button class="setdel" onclick="deletePermanentNodeAdmin('+idx+')">移除</button>' : '') + '</div>';
+    return '<div class="setrow" style="background:rgba(52,211,153,0.02);padding:4px;border-radius:4px;border:1px solid rgba(52,211,153,0.2)"><div style="font-size:11px;color:#34d399;flex:1">👑 '+ai.name+'</div>' + (S.isAdmin ? '<button class="setdel" onclick="deletePermanentNodeAdmin('+idx+')">移除</button>' : '') + '</div>';
   }).join('');
 
   var localListHtml = (S.localAis.length === 0) ? '<div style="font-size:10px;color:#475569">暂无本地独享接口</div>' : S.localAis.map(function(ai, idx){
